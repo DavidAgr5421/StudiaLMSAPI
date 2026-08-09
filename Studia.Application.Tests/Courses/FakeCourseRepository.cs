@@ -15,4 +15,9 @@ public class FakeCourseRepository : ICourseRepository
 
     public Course? GetByInvitationCode(string invitationCode) =>
         _courses.Values.FirstOrDefault(c => c.InvitationCode == invitationCode);
+
+    public IReadOnlyCollection<Course> Search(string query) =>
+        _courses.Values
+            .Where(c => c.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+            .ToList();
 }

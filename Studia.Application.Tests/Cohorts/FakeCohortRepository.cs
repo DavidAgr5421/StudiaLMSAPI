@@ -15,4 +15,9 @@ public class FakeCohortRepository : ICohortRepository
 
     public IReadOnlyCollection<Cohort> GetByCourseId(Guid courseId) =>
         _cohorts.Values.Where(c => c.CourseId == courseId).ToList();
+
+    public IReadOnlyCollection<Cohort> Search(string query) =>
+        _cohorts.Values
+            .Where(c => c.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+            .ToList();
 }

@@ -9,4 +9,6 @@ public interface IUserRepository
     User? GetById(Guid id);
 
     User? GetByEmail(Email email);
+
+    IReadOnlyCollection<User> Search(string query);
 }

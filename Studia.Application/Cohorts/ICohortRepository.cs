@@ -9,4 +9,6 @@ public interface ICohortRepository
     Cohort? GetById(Guid id);
 
     IReadOnlyCollection<Cohort> GetByCourseId(Guid courseId);
+
+    IReadOnlyCollection<Cohort> Search(string query);
 }

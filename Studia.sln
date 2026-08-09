@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studia.Domain.Tests", "Stud
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studia.Application.Tests", "Studia.Application.Tests\Studia.Application.Tests.csproj", "{81112826-AA27-4B20-9E11-40DD1DE1D0C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Studia.WebApi", "Studia.WebApi\Studia.WebApi.csproj", "{7105C420-8CBA-4F07-8A00-C35168AE229E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -94,6 +96,18 @@ Global
 		{81112826-AA27-4B20-9E11-40DD1DE1D0C6}.Release|x64.Build.0 = Release|Any CPU
 		{81112826-AA27-4B20-9E11-40DD1DE1D0C6}.Release|x86.ActiveCfg = Release|Any CPU
 		{81112826-AA27-4B20-9E11-40DD1DE1D0C6}.Release|x86.Build.0 = Release|Any CPU
+		{7105C420-8CBA-4F07-8A00-C35168AE229E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7105C420-8CBA-4F07-8A00-C35168AE229E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7105C420-8CBA-4F07-8A00-C35168AE229E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7105C420-8CBA-4F07-8A00-C35168AE229E}.Debug|x64.Build.0 = Debug|Any CPU
+		{7105C420-8CBA-4F07-8A00-C35168AE229E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7105C420-8CBA-4F07-8A00-C35168AE229E}.Debug|x86.Build.0 = Debug|Any CPU
+		{7105C420-8CBA-4F07-8A00-C35168AE229E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7105C420-8CBA-4F07-8A00-C35168AE229E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7105C420-8CBA-4F07-8A00-C35168AE229E}.Release|x64.ActiveCfg = Release|Any CPU
+		{7105C420-8CBA-4F07-8A00-C35168AE229E}.Release|x64.Build.0 = Release|Any CPU
+		{7105C420-8CBA-4F07-8A00-C35168AE229E}.Release|x86.ActiveCfg = Release|Any CPU
+		{7105C420-8CBA-4F07-8A00-C35168AE229E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -14,4 +14,10 @@ public class InMemoryUserRepository : IUserRepository
 
     public User? GetByEmail(Email email) =>
         _users.Values.FirstOrDefault(u => u.Email.Equals(email));
+
+    public IReadOnlyCollection<User> Search(string query) =>
+        _users.Values
+            .Where(u => (u.Name is not null && u.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+                || u.Email.Value.Contains(query, StringComparison.OrdinalIgnoreCase))
+            .ToList();
 }
