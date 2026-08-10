@@ -41,13 +41,13 @@ IEnrollByInvitationUseCase enrollByInvitationUseCase =
 
 ISectionRepository sectionRepository = new InMemorySectionRepository();
 IHtmlSanitizer htmlSanitizer = new AllowListHtmlSanitizer();
-ICreateSectionUseCase createSectionUseCase = new CreateSectionUseCase(sectionRepository, courseRepository, htmlSanitizer);
+ICreateSectionUseCase createSectionUseCase = new CreateSectionUseCase(sectionRepository, courseRepository, cohortRepository, htmlSanitizer);
 
+IFileStorage fileStorage = new LocalFileStorage();
 IActivityRepository activityRepository = new InMemoryActivityRepository();
-ICreateActivityUseCase createActivityUseCase = new CreateActivityUseCase(activityRepository, sectionRepository);
+ICreateActivityUseCase createActivityUseCase = new CreateActivityUseCase(activityRepository, sectionRepository, cohortRepository, fileStorage, htmlSanitizer);
 
 ISubmissionRepository submissionRepository = new InMemorySubmissionRepository();
-IFileStorage fileStorage = new LocalFileStorage();
 ISubmitTextActivityUseCase submitTextActivityUseCase =
     new SubmitTextActivityUseCase(submissionRepository, activityRepository, userRepository);
 ISubmitFilesActivityUseCase submitFilesActivityUseCase =

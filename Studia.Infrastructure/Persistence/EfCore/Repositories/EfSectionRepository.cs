@@ -20,4 +20,6 @@ public class EfSectionRepository(StudiaDbContext dbContext) : ISectionRepository
 
     public IReadOnlyCollection<Section> GetByCourseId(Guid courseId) =>
         dbContext.Sections.Where(s => s.CourseId == courseId).ToList();
+
+    public void Delete(Guid id) => dbContext.Sections.Where(s => s.Id == id).ExecuteDelete();
 }

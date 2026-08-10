@@ -1,0 +1,3 @@
+$kind: collection
+name: Activities
+description: 'Activity management endpoints.'

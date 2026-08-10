@@ -23,4 +23,6 @@ public class FakeCourseRepository : ICourseRepository
 
     public IReadOnlyCollection<Course> GetByProfesorId(Guid profesorId) =>
         _courses.Values.Where(c => c.ProfesorId == profesorId).ToList();
+
+    public void Delete(Guid id) => _courses.Remove(id);
 }

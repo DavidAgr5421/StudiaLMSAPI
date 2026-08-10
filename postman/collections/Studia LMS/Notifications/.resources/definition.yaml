@@ -1,0 +1,3 @@
+$kind: collection
+name: Notifications
+description: 'Notification management endpoints.'

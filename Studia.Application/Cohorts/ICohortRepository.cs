@@ -11,4 +11,6 @@ public interface ICohortRepository
     IReadOnlyCollection<Cohort> GetByCourseId(Guid courseId);
 
     IReadOnlyCollection<Cohort> Search(string query);
+
+    void DeleteByCourseId(Guid courseId);
 }

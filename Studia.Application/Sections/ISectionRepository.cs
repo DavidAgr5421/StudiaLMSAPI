@@ -9,4 +9,6 @@ public interface ISectionRepository
     Section? GetById(Guid id);
 
     IReadOnlyCollection<Section> GetByCourseId(Guid courseId);
+
+    void Delete(Guid id);
 }

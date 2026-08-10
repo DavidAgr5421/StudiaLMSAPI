@@ -17,5 +17,19 @@ public class ActivityConfiguration : IEntityTypeConfiguration<Activity>
         builder.Property(a => a.DueDateUtc).IsRequired();
         builder.Property(a => a.Type).HasConversion<string>().HasMaxLength(30).IsRequired();
         builder.Property(a => a.MaxFiles);
+
+        builder.Ignore(a => a.CohortIds);
+        builder.PrimitiveCollection<List<Guid>>("_cohortIds").HasColumnName("CohortIds");
+
+        // Igual que Submission.Files: value object sin identidad propia, se guarda como
+        // columna jsonb en vez de una tabla aparte.
+        builder.Ignore(a => a.Files);
+        builder.OwnsMany<ActivityFile>("_files", files =>
+        {
+            files.ToJson();
+            files.Property(f => f.FileName).HasMaxLength(260);
+            files.Property(f => f.StorageKey).HasMaxLength(500);
+            files.Property(f => f.SizeBytes);
+        });
     }
 }

@@ -1,0 +1,9 @@
+$kind: http-request
+name: Approve Enrollment
+method: POST
+url: '{{baseUrl}}/api/enrollments/{{enrollmentId}}/approve'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{authToken}}'
+description: 'Approves a pending enrollment request. Requires Profesor or Administrador role.'

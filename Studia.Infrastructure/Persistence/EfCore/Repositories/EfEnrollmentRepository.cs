@@ -20,4 +20,6 @@ public class EfEnrollmentRepository(StudiaDbContext dbContext) : IEnrollmentRepo
 
     public IReadOnlyCollection<Enrollment> GetByCourseId(Guid courseId) =>
         dbContext.Enrollments.Where(e => e.CourseId == courseId).ToList();
+
+    public void DeleteByCourseId(Guid courseId) => dbContext.Enrollments.Where(e => e.CourseId == courseId).ExecuteDelete();
 }

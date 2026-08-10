@@ -58,9 +58,12 @@ public static class ServiceRegistration
         services.AddScoped<ISearchCoursesUseCase, SearchCoursesUseCase>();
         services.AddScoped<IGetCourseByIdUseCase, GetCourseByIdUseCase>();
         services.AddScoped<IGetCoursesByProfesorUseCase, GetCoursesByProfesorUseCase>();
+        services.AddScoped<IDeleteCourseUseCase, DeleteCourseUseCase>();
 
         services.AddScoped<ICreateCohortUseCase, CreateCohortUseCase>();
         services.AddScoped<IAssignStudentToCohortUseCase, AssignStudentToCohortUseCase>();
+        services.AddScoped<IAssignStudentsToCohortUseCase, AssignStudentsToCohortUseCase>();
+        services.AddScoped<IGetCohortsByCourseUseCase, GetCohortsByCourseUseCase>();
 
         services.AddScoped<IEnrollStudentInOpenCourseUseCase, EnrollStudentInOpenCourseUseCase>();
         services.AddScoped<IRequestEnrollmentUseCase, RequestEnrollmentUseCase>();
@@ -72,6 +75,7 @@ public static class ServiceRegistration
 
         services.AddScoped<ICreateSectionUseCase, CreateSectionUseCase>();
         services.AddScoped<IGetSectionsByCourseUseCase, GetSectionsByCourseUseCase>();
+        services.AddScoped<IDeleteSectionUseCase, DeleteSectionUseCase>();
         services.AddScoped<ICreateActivityUseCase, CreateActivityUseCase>();
         services.AddScoped<IGetActivitiesBySectionUseCase, GetActivitiesBySectionUseCase>();
 

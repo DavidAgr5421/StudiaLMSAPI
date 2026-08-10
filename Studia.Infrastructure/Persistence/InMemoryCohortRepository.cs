@@ -19,4 +19,10 @@ public class InMemoryCohortRepository : ICohortRepository
         _cohorts.Values
             .Where(c => c.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
             .ToList();
+
+    public void DeleteByCourseId(Guid courseId)
+    {
+        foreach (var cohort in GetByCourseId(courseId))
+            _cohorts.TryRemove(cohort.Id, out _);
+    }
 }

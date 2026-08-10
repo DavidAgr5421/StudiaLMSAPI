@@ -1,0 +1,3 @@
+$kind: collection
+name: Courses
+description: 'Course management endpoints.'

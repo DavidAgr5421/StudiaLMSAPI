@@ -14,4 +14,10 @@ public class InMemoryEnrollmentRepository : IEnrollmentRepository
 
     public IReadOnlyCollection<Enrollment> GetByCourseId(Guid courseId) =>
         _enrollments.Values.Where(e => e.CourseId == courseId).ToList();
+
+    public void DeleteByCourseId(Guid courseId)
+    {
+        foreach (var enrollment in GetByCourseId(courseId))
+            _enrollments.TryRemove(enrollment.Id, out _);
+    }
 }

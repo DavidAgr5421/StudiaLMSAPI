@@ -1,0 +1,15 @@
+$kind: http-request
+name: Submit Files Activity
+method: POST
+url: '{{baseUrl}}/api/submissions/files/{{activityId}}'
+order: 2000
+description: 'Self-service: the authenticated student submits files via multipart/form-data. In Postman Body tab, set each "files" key to type=File and select files from disk. ActivityId is in the URL path. StudentId is taken from the JWT.'
+headers:
+  - key: Authorization
+    value: 'Bearer {{authToken}}'
+body:
+  type: formdata
+  content:
+    - key: files
+      value: 'solution.txt'
+      type: text

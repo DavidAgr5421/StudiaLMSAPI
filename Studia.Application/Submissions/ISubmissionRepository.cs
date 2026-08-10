@@ -9,4 +9,6 @@ public interface ISubmissionRepository
     Submission? GetById(Guid id);
 
     IReadOnlyCollection<Submission> GetByActivityId(Guid activityId);
+
+    void DeleteByActivityId(Guid activityId);
 }
