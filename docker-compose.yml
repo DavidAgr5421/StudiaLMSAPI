@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: studia-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: studia
+      POSTGRES_USER: studia
+      POSTGRES_PASSWORD: studia_dev_only
+    ports:
+      - "5432:5432"
+    volumes:
+      - studia-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  studia-postgres-data:
