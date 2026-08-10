@@ -10,7 +10,7 @@ public class CreateCohortUseCaseTests
     public void Execute_WhenCourseExists_SavesAndReturnsCohort()
     {
         var courseRepository = new FakeCourseRepository();
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         courseRepository.Save(course);
 
         var cohortRepository = new FakeCohortRepository();

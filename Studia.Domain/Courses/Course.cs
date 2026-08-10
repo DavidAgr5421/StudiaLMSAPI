@@ -12,17 +12,19 @@ public class Course
     public EnrollmentMode EnrollmentMode { get; }
     public CourseStatus Status { get; private set; }
     public string? InvitationCode { get; }
+    public Guid ProfesorId { get; }
 
-    private Course(Guid id, string name, EnrollmentMode enrollmentMode, string? invitationCode)
+    private Course(Guid id, string name, EnrollmentMode enrollmentMode, string? invitationCode, Guid profesorId)
     {
         Id = id;
         Name = name;
         EnrollmentMode = enrollmentMode;
         Status = CourseStatus.Activo;
         InvitationCode = invitationCode;
+        ProfesorId = profesorId;
     }
 
-    public static Course Create(string name, EnrollmentMode enrollmentMode)
+    public static Course Create(string name, EnrollmentMode enrollmentMode, Guid profesorId)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("El nombre del curso no puede estar vacío.", nameof(name));
@@ -30,11 +32,14 @@ public class Course
         if (name.Length > 150)
             throw new ArgumentException("El nombre del curso no puede superar los 150 caracteres.", nameof(name));
 
+        if (profesorId == Guid.Empty)
+            throw new ArgumentException("El curso debe pertenecer a un profesor.", nameof(profesorId));
+
         var invitationCode = enrollmentMode == EnrollmentMode.PorInvitacion
             ? RandomNumberGenerator.GetString(InvitationCodeAlphabet, InvitationCodeLength)
             : null;
 
-        return new Course(Guid.NewGuid(), name.Trim(), enrollmentMode, invitationCode);
+        return new Course(Guid.NewGuid(), name.Trim(), enrollmentMode, invitationCode, profesorId);
     }
 
     public void Archive()

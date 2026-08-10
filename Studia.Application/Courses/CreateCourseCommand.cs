@@ -2,4 +2,4 @@ using Studia.Domain.Courses;
 
 namespace Studia.Application.Courses;
 
-public record CreateCourseCommand(string Name, EnrollmentMode EnrollmentMode);
+public record CreateCourseCommand(string Name, EnrollmentMode EnrollmentMode, Guid ProfesorId);

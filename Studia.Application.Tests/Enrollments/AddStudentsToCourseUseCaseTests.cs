@@ -23,7 +23,7 @@ public class AddStudentsToCourseUseCaseTests
     public void Execute_WithMixOfEmailAndId_EnrollsBothRegardlessOfEnrollmentMode()
     {
         var (courses, users, enrollments, useCase) = CreateSut();
-        var course = Course.Create("English A1", EnrollmentMode.ConAprobacion);
+        var course = Course.Create("English A1", EnrollmentMode.ConAprobacion, Guid.NewGuid());
         courses.Save(course);
         var byEmail = User.Register(Email.Create("ana@sena.edu.co"), "hash", Role.Estudiante, "Ana");
         var byId = User.Register(Email.Create("luis@sena.edu.co"), "hash", Role.Estudiante, "Luis");
@@ -40,7 +40,7 @@ public class AddStudentsToCourseUseCaseTests
     public void Execute_WithUnknownIdentifier_ReportsFailureWithoutStoppingOthers()
     {
         var (courses, users, enrollments, useCase) = CreateSut();
-        var course = Course.Create("English A1", EnrollmentMode.ConAprobacion);
+        var course = Course.Create("English A1", EnrollmentMode.ConAprobacion, Guid.NewGuid());
         courses.Save(course);
         var student = User.Register(Email.Create("ana@sena.edu.co"), "hash", Role.Estudiante, "Ana");
         users.Save(student);
@@ -57,7 +57,7 @@ public class AddStudentsToCourseUseCaseTests
     public void Execute_WithNonStudentRole_ReportsFailure()
     {
         var (courses, users, _, useCase) = CreateSut();
-        var course = Course.Create("English A1", EnrollmentMode.ConAprobacion);
+        var course = Course.Create("English A1", EnrollmentMode.ConAprobacion, Guid.NewGuid());
         courses.Save(course);
         var teacher = User.Register(Email.Create("profe@sena.edu.co"), "hash", Role.Profesor, "Profe");
         users.Save(teacher);
@@ -71,7 +71,7 @@ public class AddStudentsToCourseUseCaseTests
     public void Execute_WhenAlreadyEnrolled_ReportsFailure()
     {
         var (courses, users, enrollments, useCase) = CreateSut();
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         courses.Save(course);
         var student = User.Register(Email.Create("ana@sena.edu.co"), "hash", Role.Estudiante, "Ana");
         users.Save(student);
@@ -95,7 +95,7 @@ public class AddStudentsToCourseUseCaseTests
     public void Execute_WhenCourseArchived_Throws()
     {
         var (courses, _, _, useCase) = CreateSut();
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         course.Archive();
         courses.Save(course);
 

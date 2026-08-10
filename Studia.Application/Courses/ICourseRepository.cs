@@ -11,4 +11,6 @@ public interface ICourseRepository
     Course? GetByInvitationCode(string invitationCode);
 
     IReadOnlyCollection<Course> Search(string query);
+
+    IReadOnlyCollection<Course> GetByProfesorId(Guid profesorId);
 }

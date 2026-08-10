@@ -191,12 +191,18 @@ void RunCreateCourse()
     Console.Write($"Enrollment mode ({string.Join(" / ", Enum.GetNames<EnrollmentMode>())}): ");
     var enrollmentModeText = Console.ReadLine() ?? string.Empty;
 
+    Console.Write("Profesor id: ");
+    var profesorIdText = Console.ReadLine() ?? string.Empty;
+
     RunSafely(() =>
     {
         if (!Enum.TryParse<EnrollmentMode>(enrollmentModeText, ignoreCase: true, out var enrollmentMode))
             throw new ArgumentException($"Invalid enrollment mode: '{enrollmentModeText}'.");
 
-        var result = createCourseUseCase.Execute(new CreateCourseCommand(name, enrollmentMode));
+        if (!Guid.TryParse(profesorIdText, out var profesorId))
+            throw new ArgumentException($"Invalid profesor id: '{profesorIdText}'.");
+
+        var result = createCourseUseCase.Execute(new CreateCourseCommand(name, enrollmentMode, profesorId));
 
         Console.WriteLine();
         Console.WriteLine("Course created successfully:");

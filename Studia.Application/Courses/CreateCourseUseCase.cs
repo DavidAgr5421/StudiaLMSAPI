@@ -6,7 +6,7 @@ public class CreateCourseUseCase(ICourseRepository courseRepository) : ICreateCo
 {
     public CourseResult Execute(CreateCourseCommand command)
     {
-        var course = Course.Create(command.Name, command.EnrollmentMode);
+        var course = Course.Create(command.Name, command.EnrollmentMode, command.ProfesorId);
 
         courseRepository.Save(course);
 

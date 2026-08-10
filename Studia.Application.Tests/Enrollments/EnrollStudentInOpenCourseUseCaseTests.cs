@@ -25,7 +25,7 @@ public class EnrollStudentInOpenCourseUseCaseTests
     public void Execute_WithOpenActiveCourseAndStudent_EnrollsSuccessfully()
     {
         var (courses, users, enrollments, useCase) = CreateSut();
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         courses.Save(course);
         var student = CreateStudent();
         users.Save(student);
@@ -53,7 +53,7 @@ public class EnrollStudentInOpenCourseUseCaseTests
     public void Execute_WhenCourseIsNotOpenEnrollment_Throws()
     {
         var (courses, users, _, useCase) = CreateSut();
-        var course = Course.Create("English B1", EnrollmentMode.ConAprobacion);
+        var course = Course.Create("English B1", EnrollmentMode.ConAprobacion, Guid.NewGuid());
         courses.Save(course);
         var student = CreateStudent();
         users.Save(student);
@@ -66,7 +66,7 @@ public class EnrollStudentInOpenCourseUseCaseTests
     public void Execute_WhenCourseIsArchived_Throws()
     {
         var (courses, users, _, useCase) = CreateSut();
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         course.Archive();
         courses.Save(course);
         var student = CreateStudent();
@@ -80,7 +80,7 @@ public class EnrollStudentInOpenCourseUseCaseTests
     public void Execute_WhenStudentDoesNotExist_Throws()
     {
         var (courses, _, _, useCase) = CreateSut();
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         courses.Save(course);
 
         Assert.Throws<InvalidOperationException>(() =>
@@ -91,7 +91,7 @@ public class EnrollStudentInOpenCourseUseCaseTests
     public void Execute_WhenUserIsNotAStudent_Throws()
     {
         var (courses, users, _, useCase) = CreateSut();
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         courses.Save(course);
         var teacher = User.Register(Email.Create("profe@sena.edu.co"), "hashed-value", Role.Profesor);
         users.Save(teacher);
@@ -104,7 +104,7 @@ public class EnrollStudentInOpenCourseUseCaseTests
     public void Execute_WhenStudentAlreadyEnrolled_Throws()
     {
         var (courses, users, _, useCase) = CreateSut();
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         courses.Save(course);
         var student = CreateStudent();
         users.Save(student);

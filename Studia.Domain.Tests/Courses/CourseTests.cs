@@ -7,12 +7,20 @@ public class CourseTests
     [Fact]
     public void Create_WithValidData_StartsActive()
     {
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var profesorId = Guid.NewGuid();
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, profesorId);
 
         Assert.Equal("English A1", course.Name);
         Assert.Equal(EnrollmentMode.Abierta, course.EnrollmentMode);
         Assert.Equal(CourseStatus.Activo, course.Status);
+        Assert.Equal(profesorId, course.ProfesorId);
         Assert.NotEqual(Guid.Empty, course.Id);
+    }
+
+    [Fact]
+    public void Create_WithEmptyProfesorId_Throws()
+    {
+        Assert.Throws<ArgumentException>(() => Course.Create("English A1", EnrollmentMode.Abierta, Guid.Empty));
     }
 
     [Theory]
@@ -20,7 +28,7 @@ public class CourseTests
     [InlineData("   ")]
     public void Create_WithBlankName_Throws(string blankName)
     {
-        Assert.Throws<ArgumentException>(() => Course.Create(blankName, EnrollmentMode.Abierta));
+        Assert.Throws<ArgumentException>(() => Course.Create(blankName, EnrollmentMode.Abierta, Guid.NewGuid()));
     }
 
     [Fact]
@@ -28,13 +36,13 @@ public class CourseTests
     {
         var tooLong = new string('a', 151);
 
-        Assert.Throws<ArgumentException>(() => Course.Create(tooLong, EnrollmentMode.Abierta));
+        Assert.Throws<ArgumentException>(() => Course.Create(tooLong, EnrollmentMode.Abierta, Guid.NewGuid()));
     }
 
     [Fact]
     public void Archive_WhenActive_SetsStatusToArchivado()
     {
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
 
         course.Archive();
 
@@ -44,7 +52,7 @@ public class CourseTests
     [Fact]
     public void Archive_WhenAlreadyArchived_Throws()
     {
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         course.Archive();
 
         Assert.Throws<InvalidOperationException>(() => course.Archive());
@@ -53,7 +61,7 @@ public class CourseTests
     [Fact]
     public void Create_WithInvitationMode_GeneratesInvitationCode()
     {
-        var course = Course.Create("English A1", EnrollmentMode.PorInvitacion);
+        var course = Course.Create("English A1", EnrollmentMode.PorInvitacion, Guid.NewGuid());
 
         Assert.NotNull(course.InvitationCode);
         Assert.Equal(8, course.InvitationCode.Length);
@@ -64,7 +72,7 @@ public class CourseTests
     [InlineData(EnrollmentMode.ConAprobacion)]
     public void Create_WithoutInvitationMode_LeavesInvitationCodeNull(EnrollmentMode enrollmentMode)
     {
-        var course = Course.Create("English A1", enrollmentMode);
+        var course = Course.Create("English A1", enrollmentMode, Guid.NewGuid());
 
         Assert.Null(course.InvitationCode);
     }
@@ -72,8 +80,8 @@ public class CourseTests
     [Fact]
     public void Create_WithInvitationMode_GeneratesDifferentCodesEachTime()
     {
-        var first = Course.Create("English A1", EnrollmentMode.PorInvitacion);
-        var second = Course.Create("English A2", EnrollmentMode.PorInvitacion);
+        var first = Course.Create("English A1", EnrollmentMode.PorInvitacion, Guid.NewGuid());
+        var second = Course.Create("English A2", EnrollmentMode.PorInvitacion, Guid.NewGuid());
 
         Assert.NotEqual(first.InvitationCode, second.InvitationCode);
     }

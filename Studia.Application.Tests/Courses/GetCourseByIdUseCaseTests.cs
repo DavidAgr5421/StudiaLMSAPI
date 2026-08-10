@@ -9,7 +9,7 @@ public class GetCourseByIdUseCaseTests
     public void Execute_WithExistingCourse_ReturnsResult()
     {
         var repository = new FakeCourseRepository();
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         repository.Save(course);
         var useCase = new GetCourseByIdUseCase(repository);
 

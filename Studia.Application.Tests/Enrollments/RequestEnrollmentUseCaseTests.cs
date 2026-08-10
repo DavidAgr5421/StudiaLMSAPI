@@ -26,7 +26,7 @@ public class RequestEnrollmentUseCaseTests
     public void Execute_WithApprovalCourseAndStudent_CreatesPendingEnrollment()
     {
         var (courses, users, enrollments, useCase) = CreateSut();
-        var course = Course.Create("English B1", EnrollmentMode.ConAprobacion);
+        var course = Course.Create("English B1", EnrollmentMode.ConAprobacion, Guid.NewGuid());
         courses.Save(course);
         var student = CreateStudent();
         users.Save(student);
@@ -42,7 +42,7 @@ public class RequestEnrollmentUseCaseTests
     public void Execute_WhenCourseIsNotApprovalMode_Throws()
     {
         var (courses, users, _, useCase) = CreateSut();
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         courses.Save(course);
         var student = CreateStudent();
         users.Save(student);
@@ -55,7 +55,7 @@ public class RequestEnrollmentUseCaseTests
     public void Execute_WhenStudentHasPendingRequest_Throws()
     {
         var (courses, users, _, useCase) = CreateSut();
-        var course = Course.Create("English B1", EnrollmentMode.ConAprobacion);
+        var course = Course.Create("English B1", EnrollmentMode.ConAprobacion, Guid.NewGuid());
         courses.Save(course);
         var student = CreateStudent();
         users.Save(student);
@@ -69,7 +69,7 @@ public class RequestEnrollmentUseCaseTests
     public void Execute_WhenPreviousRequestWasRejected_AllowsNewRequest()
     {
         var (courses, users, enrollments, useCase) = CreateSut();
-        var course = Course.Create("English B1", EnrollmentMode.ConAprobacion);
+        var course = Course.Create("English B1", EnrollmentMode.ConAprobacion, Guid.NewGuid());
         courses.Save(course);
         var student = CreateStudent();
         users.Save(student);

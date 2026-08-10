@@ -10,7 +10,7 @@ public class CreateSectionUseCaseTests
     public void Execute_WithActiveCourse_SavesSanitizedSection()
     {
         var courses = new FakeCourseRepository();
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         courses.Save(course);
         var sections = new FakeSectionRepository();
         var useCase = new CreateSectionUseCase(sections, courses, new FakeHtmlSanitizer());
@@ -34,7 +34,7 @@ public class CreateSectionUseCaseTests
     public void Execute_WhenCourseIsArchived_Throws()
     {
         var courses = new FakeCourseRepository();
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         course.Archive();
         courses.Save(course);
         var useCase = new CreateSectionUseCase(new FakeSectionRepository(), courses, new FakeHtmlSanitizer());

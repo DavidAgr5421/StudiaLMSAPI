@@ -11,7 +11,7 @@ public class CreateCourseUseCaseTests
         var repository = new FakeCourseRepository();
         var useCase = new CreateCourseUseCase(repository);
 
-        var result = useCase.Execute(new CreateCourseCommand("English A1", EnrollmentMode.Abierta));
+        var result = useCase.Execute(new CreateCourseCommand("English A1", EnrollmentMode.Abierta, Guid.NewGuid()));
 
         var savedCourse = Assert.Single(repository.SavedCourses);
         Assert.Equal(result.Id, savedCourse.Id);
@@ -23,6 +23,6 @@ public class CreateCourseUseCaseTests
     {
         var useCase = new CreateCourseUseCase(new FakeCourseRepository());
 
-        Assert.Throws<ArgumentException>(() => useCase.Execute(new CreateCourseCommand("", EnrollmentMode.Abierta)));
+        Assert.Throws<ArgumentException>(() => useCase.Execute(new CreateCourseCommand("", EnrollmentMode.Abierta, Guid.NewGuid())));
     }
 }

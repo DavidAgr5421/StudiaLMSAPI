@@ -26,4 +26,7 @@ public class EfCourseRepository(StudiaDbContext dbContext) : ICourseRepository
             .AsEnumerable()
             .Where(c => c.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
             .ToList();
+
+    public IReadOnlyCollection<Course> GetByProfesorId(Guid profesorId) =>
+        dbContext.Courses.Where(c => c.ProfesorId == profesorId).ToList();
 }

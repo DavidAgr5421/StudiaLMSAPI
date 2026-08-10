@@ -20,4 +20,7 @@ public class FakeCourseRepository : ICourseRepository
         _courses.Values
             .Where(c => c.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
             .ToList();
+
+    public IReadOnlyCollection<Course> GetByProfesorId(Guid profesorId) =>
+        _courses.Values.Where(c => c.ProfesorId == profesorId).ToList();
 }

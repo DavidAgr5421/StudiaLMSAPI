@@ -115,12 +115,17 @@ namespace Studia.Infrastructure.Persistence.EfCore.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<Guid>("ProfesorId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProfesorId");
 
                     b.ToTable("courses", (string)null);
                 });

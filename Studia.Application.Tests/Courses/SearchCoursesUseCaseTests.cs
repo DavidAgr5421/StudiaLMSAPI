@@ -11,7 +11,7 @@ public class SearchCoursesUseCaseTests
     public void Execute_MatchesByCourseName()
     {
         var courses = new FakeCourseRepository();
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         courses.Save(course);
         var useCase = new SearchCoursesUseCase(courses, new FakeCohortRepository());
 
@@ -24,7 +24,7 @@ public class SearchCoursesUseCaseTests
     public void Execute_MatchesByCohortName_ReturnsParentCourse()
     {
         var courses = new FakeCourseRepository();
-        var course = Course.Create("English A1", EnrollmentMode.Abierta);
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
         courses.Save(course);
 
         var cohorts = new FakeCohortRepository();
@@ -42,7 +42,7 @@ public class SearchCoursesUseCaseTests
     public void Execute_MatchingBothCourseAndCohort_DoesNotDuplicateCourse()
     {
         var courses = new FakeCourseRepository();
-        var course = Course.Create("Nivelacion A1", EnrollmentMode.Abierta);
+        var course = Course.Create("Nivelacion A1", EnrollmentMode.Abierta, Guid.NewGuid());
         courses.Save(course);
 
         var cohorts = new FakeCohortRepository();

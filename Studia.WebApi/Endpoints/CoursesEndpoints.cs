@@ -1,6 +1,7 @@
 using Studia.Application.Courses;
 using Studia.Application.Enrollments;
 using Studia.Application.Sections;
+using Studia.Domain.Courses;
 
 namespace Studia.WebApi.Endpoints;
 
@@ -10,8 +11,11 @@ public static class CoursesEndpoints
     {
         var group = app.MapGroup("/api/courses");
 
-        group.MapPost("/", (CreateCourseCommand command, ICreateCourseUseCase useCase) =>
+        // El dueño del curso sale del JWT, no del body: auto-servicio, igual que el resto
+        // de los "crear algo propio" de la API.
+        group.MapPost("/", (CreateCourseBody body, HttpContext httpContext, ICreateCourseUseCase useCase) =>
             {
+                var command = new CreateCourseCommand(body.Name, body.EnrollmentMode, httpContext.User.GetUserId());
                 var result = useCase.Execute(command);
                 return Results.Created($"/api/courses/{result.Id}", result);
             })
@@ -20,6 +24,11 @@ public static class CoursesEndpoints
         // Pública a propósito (RF12): un visitante sin sesión puede buscar cursos.
         group.MapGet("/search", (string q, ISearchCoursesUseCase useCase) =>
             Results.Ok(useCase.Execute(new SearchCoursesQuery(q))));
+
+        // "Mis cursos": los que creó el profesor/admin autenticado.
+        group.MapGet("/mine", (HttpContext httpContext, IGetCoursesByProfesorUseCase useCase) =>
+                Results.Ok(useCase.Execute(new GetCoursesByProfesorQuery(httpContext.User.GetUserId()))))
+            .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
 
         // También pública: RF12 permite ver el detalle de un curso antes de loguearse.
         group.MapGet("/{courseId:guid}", (Guid courseId, IGetCourseByIdUseCase useCase) =>
@@ -40,7 +49,15 @@ public static class CoursesEndpoints
         group.MapPost("/{courseId:guid}/students", (Guid courseId, AddStudentsBody body, IAddStudentsToCourseUseCase useCase) =>
                 Results.Ok(useCase.Execute(new AddStudentsToCourseCommand(courseId, body.StudentIdentifiers))))
             .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
+
+        // Para que el profesor vea a quién aprobar/rechazar -- sin esto no hay forma de
+        // conocer los enrollmentId pendientes de un curso.
+        group.MapGet("/{courseId:guid}/enrollments", (Guid courseId, IGetEnrollmentsByCourseUseCase useCase) =>
+                Results.Ok(useCase.Execute(new GetEnrollmentsByCourseQuery(courseId))))
+            .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
     }
 
     private record AddStudentsBody(IReadOnlyCollection<string> StudentIdentifiers);
+
+    private record CreateCourseBody(string Name, EnrollmentMode EnrollmentMode);
 }

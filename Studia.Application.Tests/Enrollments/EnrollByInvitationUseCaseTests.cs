@@ -26,7 +26,7 @@ public class EnrollByInvitationUseCaseTests
     public void Execute_WithValidCode_EnrollsStudentAsApproved()
     {
         var (courses, users, enrollments, useCase) = CreateSut();
-        var course = Course.Create("English C1", EnrollmentMode.PorInvitacion);
+        var course = Course.Create("English C1", EnrollmentMode.PorInvitacion, Guid.NewGuid());
         courses.Save(course);
         var student = CreateStudent();
         users.Save(student);
@@ -52,7 +52,7 @@ public class EnrollByInvitationUseCaseTests
     public void Execute_WhenCourseIsArchived_Throws()
     {
         var (courses, users, _, useCase) = CreateSut();
-        var course = Course.Create("English C1", EnrollmentMode.PorInvitacion);
+        var course = Course.Create("English C1", EnrollmentMode.PorInvitacion, Guid.NewGuid());
         course.Archive();
         courses.Save(course);
         var student = CreateStudent();
@@ -66,7 +66,7 @@ public class EnrollByInvitationUseCaseTests
     public void Execute_WhenStudentAlreadyEnrolled_Throws()
     {
         var (courses, users, _, useCase) = CreateSut();
-        var course = Course.Create("English C1", EnrollmentMode.PorInvitacion);
+        var course = Course.Create("English C1", EnrollmentMode.PorInvitacion, Guid.NewGuid());
         courses.Save(course);
         var student = CreateStudent();
         users.Save(student);
