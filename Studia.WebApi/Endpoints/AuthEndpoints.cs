@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Studia.Application.Auth;
 using Studia.Application.Users;
+using Studia.Domain.Users;
 
 namespace Studia.WebApi.Endpoints;
 
@@ -10,8 +11,14 @@ public static class AuthEndpoints
     {
         var group = app.MapGroup("/api/auth");
 
-        group.MapPost("/register", (RegisterUserCommand command, IRegisterUserUseCase useCase) =>
+        // Público a propósito, y por eso mismo el body NO tiene un campo Role: si lo
+        // tuviera, alcanzaría con mandar "role": "Administrador" (o incluso omitir el
+        // campo -- un enum ausente en el JSON se rellena con su valor 0, que en Role es
+        // justo Administrador) para autoasignarse cualquier rol. Acá no hay ambigüedad
+        // posible: todo lo que entra por este endpoint es Estudiante, sin excepción.
+        group.MapPost("/register", (PublicRegisterBody body, IRegisterUserUseCase useCase) =>
         {
+            var command = new RegisterUserCommand(body.Email, body.Password, Role.Estudiante, body.Name);
             var result = useCase.Execute(command);
             return Results.Created($"/api/users/{result.Id}", result);
         });
@@ -55,4 +62,6 @@ public static class AuthEndpoints
         const string prefix = "Bearer ";
         return header.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) ? header[prefix.Length..] : header;
     }
+
+    private record PublicRegisterBody(string Email, string Password, string? Name);
 }

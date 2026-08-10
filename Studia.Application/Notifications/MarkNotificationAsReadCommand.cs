@@ -1,3 +1,3 @@
 namespace Studia.Application.Notifications;
 
-public record MarkNotificationAsReadCommand(Guid NotificationId);
+public record MarkNotificationAsReadCommand(Guid NotificationId, Guid RequestingUserId);

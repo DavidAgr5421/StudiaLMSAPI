@@ -9,7 +9,7 @@ using Studia.Application.Submissions;
 using Studia.Application.Users;
 using Studia.Infrastructure.Content;
 using Studia.Infrastructure.Notifications;
-using Studia.Infrastructure.Persistence;
+using Studia.Infrastructure.Persistence.EfCore.Repositories;
 using Studia.Infrastructure.Security;
 using Studia.Infrastructure.Storage;
 
@@ -17,19 +17,21 @@ namespace Studia.WebApi;
 
 public static class ServiceRegistration
 {
-    // Singleton: cada InMemory*Repository guarda su estado en un campo de instancia.
-    // Si se registraran como Scoped/Transient, cada request vería un almacén vacío nuevo.
+    // Scoped, no Singleton: cada Ef*Repository envuelve el mismo StudiaDbContext, que
+    // AddDbContext registra como Scoped (una instancia por request). EF Core no es seguro
+    // para usar desde múltiples threads/requests a la vez, así que el repositorio no puede
+    // vivir más tiempo que el propio DbContext que envuelve.
     public static IServiceCollection AddStudiaRepositories(this IServiceCollection services)
     {
-        services.AddSingleton<IUserRepository, InMemoryUserRepository>();
-        services.AddSingleton<ICourseRepository, InMemoryCourseRepository>();
-        services.AddSingleton<ICohortRepository, InMemoryCohortRepository>();
-        services.AddSingleton<IEnrollmentRepository, InMemoryEnrollmentRepository>();
-        services.AddSingleton<ISectionRepository, InMemorySectionRepository>();
-        services.AddSingleton<IActivityRepository, InMemoryActivityRepository>();
-        services.AddSingleton<ISubmissionRepository, InMemorySubmissionRepository>();
-        services.AddSingleton<INotificationRepository, InMemoryNotificationRepository>();
-        services.AddSingleton<IRevokedTokenRepository, InMemoryRevokedTokenRepository>();
+        services.AddScoped<IUserRepository, EfUserRepository>();
+        services.AddScoped<ICourseRepository, EfCourseRepository>();
+        services.AddScoped<ICohortRepository, EfCohortRepository>();
+        services.AddScoped<IEnrollmentRepository, EfEnrollmentRepository>();
+        services.AddScoped<ISectionRepository, EfSectionRepository>();
+        services.AddScoped<IActivityRepository, EfActivityRepository>();
+        services.AddScoped<ISubmissionRepository, EfSubmissionRepository>();
+        services.AddScoped<INotificationRepository, EfNotificationRepository>();
+        services.AddScoped<IRevokedTokenRepository, EfRevokedTokenRepository>();
 
         return services;
     }
@@ -54,6 +56,7 @@ public static class ServiceRegistration
 
         services.AddScoped<ICreateCourseUseCase, CreateCourseUseCase>();
         services.AddScoped<ISearchCoursesUseCase, SearchCoursesUseCase>();
+        services.AddScoped<IGetCourseByIdUseCase, GetCourseByIdUseCase>();
 
         services.AddScoped<ICreateCohortUseCase, CreateCohortUseCase>();
         services.AddScoped<IAssignStudentToCohortUseCase, AssignStudentToCohortUseCase>();
@@ -63,18 +66,23 @@ public static class ServiceRegistration
         services.AddScoped<IApproveEnrollmentUseCase, ApproveEnrollmentUseCase>();
         services.AddScoped<IRejectEnrollmentUseCase, RejectEnrollmentUseCase>();
         services.AddScoped<IEnrollByInvitationUseCase, EnrollByInvitationUseCase>();
+        services.AddScoped<IAddStudentsToCourseUseCase, AddStudentsToCourseUseCase>();
 
         services.AddScoped<ICreateSectionUseCase, CreateSectionUseCase>();
+        services.AddScoped<IGetSectionsByCourseUseCase, GetSectionsByCourseUseCase>();
         services.AddScoped<ICreateActivityUseCase, CreateActivityUseCase>();
+        services.AddScoped<IGetActivitiesBySectionUseCase, GetActivitiesBySectionUseCase>();
 
         services.AddScoped<ISubmitTextActivityUseCase, SubmitTextActivityUseCase>();
         services.AddScoped<ISubmitFilesActivityUseCase, SubmitFilesActivityUseCase>();
         services.AddScoped<IGradeSubmissionUseCase, GradeSubmissionUseCase>();
+        services.AddScoped<IGetSubmissionsByActivityUseCase, GetSubmissionsByActivityUseCase>();
 
         services.AddScoped<INotifyNewActivityUseCase, NotifyNewActivityUseCase>();
         services.AddScoped<INotifyNewSectionUseCase, NotifyNewSectionUseCase>();
         services.AddScoped<ISendDueDateReminderUseCase, SendDueDateReminderUseCase>();
         services.AddScoped<IMarkNotificationAsReadUseCase, MarkNotificationAsReadUseCase>();
+        services.AddScoped<IGetMyNotificationsUseCase, GetMyNotificationsUseCase>();
 
         return services;
     }

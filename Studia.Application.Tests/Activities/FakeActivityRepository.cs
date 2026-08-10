@@ -12,4 +12,7 @@ public class FakeActivityRepository : IActivityRepository
     public void Save(Activity activity) => _activities[activity.Id] = activity;
 
     public Activity? GetById(Guid id) => _activities.GetValueOrDefault(id);
+
+    public IReadOnlyCollection<Activity> GetBySectionId(Guid sectionId) =>
+        _activities.Values.Where(a => a.SectionId == sectionId).ToList();
 }

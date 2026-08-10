@@ -7,4 +7,6 @@ public interface IActivityRepository
     void Save(Activity activity);
 
     Activity? GetById(Guid id);
+
+    IReadOnlyCollection<Activity> GetBySectionId(Guid sectionId);
 }

@@ -7,6 +7,9 @@ public class MarkNotificationAsReadUseCase(INotificationRepository notificationR
         var notification = notificationRepository.GetById(command.NotificationId)
             ?? throw new InvalidOperationException($"No existe una notificación con id '{command.NotificationId}'.");
 
+        if (notification.RecipientUserId != command.RequestingUserId)
+            throw new InvalidOperationException("No puede marcar como leída una notificación que no le pertenece.");
+
         notification.MarkAsRead();
 
         notificationRepository.Save(notification);

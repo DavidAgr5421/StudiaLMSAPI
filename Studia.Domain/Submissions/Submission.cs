@@ -8,9 +8,21 @@ public class Submission
     public SubmissionStatus Status { get; }
     public DateTime SubmittedAtUtc { get; }
     public string? TextContent { get; }
-    public IReadOnlyCollection<SubmittedFile> Files { get; }
     public int? Score { get; private set; }
     public string? Feedback { get; private set; }
+
+    private readonly List<SubmittedFile> _files;
+    public IReadOnlyCollection<SubmittedFile> Files => _files.AsReadOnly();
+
+    // Constructor vacío exclusivo para que EF Core materialice el objeto al leerlo de la
+    // base de datos (no puede emparejar el parámetro "files" del otro constructor con el
+    // campo "_files": difieren en nombre y tipo). El dominio nunca llama a este constructor.
+#pragma warning disable CS8618
+    private Submission()
+    {
+        _files = [];
+    }
+#pragma warning restore CS8618
 
     private Submission(
         Guid id,
@@ -27,7 +39,7 @@ public class Submission
         Status = status;
         SubmittedAtUtc = submittedAtUtc;
         TextContent = textContent;
-        Files = files;
+        _files = files.ToList();
     }
 
     public static Submission SubmitText(Guid activityId, Guid studentId, string textContent, DateTime dueDateUtc)

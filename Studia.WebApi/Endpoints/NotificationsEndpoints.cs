@@ -20,9 +20,15 @@ public static class NotificationsEndpoints
                 Results.Ok(useCase.Execute(new SendDueDateReminderCommand(activityId))))
             .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
 
-        // Cualquier usuario autenticado puede marcar como leída -- ver nota sobre esto en la respuesta.
-        group.MapPost("/{notificationId:guid}/read", (Guid notificationId, IMarkNotificationAsReadUseCase useCase) =>
-                Results.Ok(useCase.Execute(new MarkNotificationAsReadCommand(notificationId))))
+        // El destinatario sale del JWT, no del body: así nadie puede marcar como leída
+        // una notificación ajena solo por adivinar su id.
+        group.MapPost("/{notificationId:guid}/read", (Guid notificationId, HttpContext httpContext, IMarkNotificationAsReadUseCase useCase) =>
+                Results.Ok(useCase.Execute(new MarkNotificationAsReadCommand(notificationId, httpContext.User.GetUserId()))))
+            .RequireAuthorization();
+
+        // Mismo criterio: la lista es siempre "las mías", nunca las de un id arbitrario.
+        group.MapGet("/me", (HttpContext httpContext, IGetMyNotificationsUseCase useCase) =>
+                Results.Ok(useCase.Execute(new GetMyNotificationsQuery(httpContext.User.GetUserId()))))
             .RequireAuthorization();
     }
 }

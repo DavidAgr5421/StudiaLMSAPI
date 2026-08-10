@@ -11,4 +11,7 @@ public class InMemorySectionRepository : ISectionRepository
     public void Save(Section section) => _sections[section.Id] = section;
 
     public Section? GetById(Guid id) => _sections.GetValueOrDefault(id);
+
+    public IReadOnlyCollection<Section> GetByCourseId(Guid courseId) =>
+        _sections.Values.Where(s => s.CourseId == courseId).ToList();
 }

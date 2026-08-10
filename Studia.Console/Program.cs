@@ -702,12 +702,18 @@ void RunMarkNotificationAsRead()
     Console.Write("Notification id: ");
     var notificationIdText = Console.ReadLine() ?? string.Empty;
 
+    Console.Write("Your user id (recipient): ");
+    var requestingUserIdText = Console.ReadLine() ?? string.Empty;
+
     RunSafely(() =>
     {
         if (!Guid.TryParse(notificationIdText, out var notificationId))
             throw new ArgumentException($"Invalid notification id: '{notificationIdText}'.");
 
-        var result = markNotificationAsReadUseCase.Execute(new MarkNotificationAsReadCommand(notificationId));
+        if (!Guid.TryParse(requestingUserIdText, out var requestingUserId))
+            throw new ArgumentException($"Invalid user id: '{requestingUserIdText}'.");
+
+        var result = markNotificationAsReadUseCase.Execute(new MarkNotificationAsReadCommand(notificationId, requestingUserId));
 
         Console.WriteLine();
         Console.WriteLine("Notification marked as read:");

@@ -2,9 +2,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Studia.Application.Auth;
 using Studia.Infrastructure.Auth;
+using Studia.Infrastructure.Persistence.EfCore;
 using Studia.WebApi;
 using Studia.WebApi.Endpoints;
 
@@ -17,6 +19,23 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 // ---------- Manejo de errores ----------
 builder.Services.AddExceptionHandler<AppExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+// ---------- CORS ----------
+// Sin AllowCredentials(): el front autentica con un Bearer token en el header
+// Authorization, no con cookies, así que no hace falta habilitar credenciales
+// cross-origin (que además es incompatible con orígenes comodín).
+const string frontendCorsPolicy = "StudiaFrontend";
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+
+builder.Services.AddCors(options =>
+    options.AddPolicy(frontendCorsPolicy, policy =>
+        policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
+
+// ---------- Base de datos ----------
+var connectionString = builder.Configuration.GetConnectionString("StudiaDb")
+    ?? throw new InvalidOperationException("Falta configurar ConnectionStrings:StudiaDb.");
+
+builder.Services.AddDbContext<StudiaDbContext>(options => options.UseNpgsql(connectionString));
 
 // ---------- Repositorios, puertos técnicos y casos de uso ----------
 builder.Services.AddStudiaRepositories();
@@ -84,15 +103,22 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    DbSeeder.SeedDefaultAdmin(scope.ServiceProvider, app.Configuration);
+}
+
 app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 
+app.UseCors(frontendCorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapAuthEndpoints();
+app.MapAdminEndpoints();
 app.MapCoursesEndpoints();
 app.MapCohortsEndpoints();
 app.MapUsersEndpoints();
