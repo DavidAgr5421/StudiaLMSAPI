@@ -22,9 +22,10 @@ public static class CoursesEndpoints
             })
             .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
 
-        // Pública a propósito (RF12): un visitante sin sesión puede buscar cursos.
-        group.MapGet("/search", (string q, ISearchCoursesUseCase useCase) =>
-            Results.Ok(useCase.Execute(new SearchCoursesQuery(q))));
+        // Pública a propósito (RF12): un visitante sin sesión puede buscar cursos. "q" es
+        // opcional -- sin término, el botón "Cursos" del front lista todo lo disponible.
+        group.MapGet("/search", (string? q, ISearchCoursesUseCase useCase) =>
+            Results.Ok(useCase.Execute(new SearchCoursesQuery(q ?? ""))));
 
         // "Mis cursos": los que creó el profesor/admin autenticado.
         group.MapGet("/mine", (HttpContext httpContext, IGetCoursesByProfesorUseCase useCase) =>
