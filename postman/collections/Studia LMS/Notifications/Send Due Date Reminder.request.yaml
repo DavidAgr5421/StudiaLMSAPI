@@ -1,0 +1,9 @@
+$kind: http-request
+name: Send Due Date Reminder
+method: POST
+url: '{{baseUrl}}/api/notifications/due-date-reminder/{{activityId}}'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{authToken}}'
+description: 'Sends due date reminder notifications for an activity. Requires Profesor or Administrador role.'

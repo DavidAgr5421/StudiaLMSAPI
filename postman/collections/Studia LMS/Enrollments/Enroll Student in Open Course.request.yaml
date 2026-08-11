@@ -1,0 +1,17 @@
+$kind: http-request
+name: Enroll Student in Open Course
+method: POST
+url: '{{baseUrl}}/api/enrollments/open'
+order: 1000
+description: 'Self-service: the authenticated student enrolls themselves. StudentId is taken from the JWT.'
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Authorization
+    value: 'Bearer {{authToken}}'
+body:
+  type: json
+  content: |-
+    {
+      "courseId": "{{courseId}}"
+    }

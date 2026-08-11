@@ -7,7 +7,7 @@ using Studia.Domain.Users;
 namespace Studia.Application.Enrollments;
 
 // RF11: el profesor añade estudiantes directamente, sin importar el modo de inscripción
-// del curso (Abierta/ConAprobacion/PorInvitacion) -- eso solo aplica al auto-servicio.
+// del curso (Abierta/ConAprobacion) -- eso solo aplica al auto-servicio.
 public class AddStudentsToCourseUseCase(
     ICourseRepository courseRepository,
     IUserRepository userRepository,

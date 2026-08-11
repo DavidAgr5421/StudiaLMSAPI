@@ -9,4 +9,8 @@ public interface IEnrollmentRepository
     Enrollment? GetById(Guid id);
 
     IReadOnlyCollection<Enrollment> GetByCourseId(Guid courseId);
+
+    IReadOnlyCollection<Enrollment> GetByStudentId(Guid studentId);
+
+    void DeleteByCourseId(Guid courseId);
 }

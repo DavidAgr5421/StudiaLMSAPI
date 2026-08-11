@@ -1,3 +1,4 @@
+using Studia.Application.Cohorts;
 using Studia.Application.Courses;
 using Studia.Application.Enrollments;
 using Studia.Application.Sections;
@@ -38,9 +39,10 @@ public static class CoursesEndpoints
         });
 
         // El contenido sí requiere sesión -- a diferencia del curso en sí, las secciones
-        // no son parte del preview público.
-        group.MapGet("/{courseId:guid}/sections", (Guid courseId, IGetSectionsByCourseUseCase useCase) =>
-                Results.Ok(useCase.Execute(new GetSectionsByCourseQuery(courseId))))
+        // no son parte del preview público. El rol/id del que pregunta decide qué
+        // secciones ve (global o de sus fichas), igual que con las actividades.
+        group.MapGet("/{courseId:guid}/sections", (Guid courseId, HttpContext httpContext, IGetSectionsByCourseUseCase useCase) =>
+                Results.Ok(useCase.Execute(new GetSectionsByCourseQuery(courseId, httpContext.User.GetUserId(), httpContext.User.GetRole()))))
             .RequireAuthorization();
 
         // RF11: el profesor arma la lista (buscando con GET /api/users/search) y la manda de una
@@ -54,6 +56,21 @@ public static class CoursesEndpoints
         // conocer los enrollmentId pendientes de un curso.
         group.MapGet("/{courseId:guid}/enrollments", (Guid courseId, IGetEnrollmentsByCourseUseCase useCase) =>
                 Results.Ok(useCase.Execute(new GetEnrollmentsByCourseQuery(courseId))))
+            .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
+
+        // Para que el profesor pueda elegir fichas al crear una sección/actividad con
+        // alcance restringido -- sin esto no hay forma de listar las fichas del curso.
+        group.MapGet("/{courseId:guid}/cohorts", (Guid courseId, IGetCohortsByCourseUseCase useCase) =>
+                Results.Ok(useCase.Execute(new GetCohortsByCourseQuery(courseId))))
+            .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
+
+        // Borrado real, no archivado: borra en cascada secciones, actividades, entregas,
+        // inscripciones y fichas del curso. El front pide confirmación antes de llamarlo.
+        group.MapDelete("/{courseId:guid}", (Guid courseId, IDeleteCourseUseCase useCase) =>
+            {
+                useCase.Execute(new DeleteCourseCommand(courseId));
+                return Results.NoContent();
+            })
             .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
     }
 

@@ -15,4 +15,10 @@ public class FakeActivityRepository : IActivityRepository
 
     public IReadOnlyCollection<Activity> GetBySectionId(Guid sectionId) =>
         _activities.Values.Where(a => a.SectionId == sectionId).ToList();
+
+    public void DeleteBySectionId(Guid sectionId)
+    {
+        foreach (var activity in GetBySectionId(sectionId))
+            _activities.Remove(activity.Id);
+    }
 }

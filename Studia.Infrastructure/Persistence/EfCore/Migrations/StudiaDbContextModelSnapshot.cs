@@ -52,6 +52,11 @@ namespace Studia.Infrastructure.Persistence.EfCore.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
+                    b.PrimitiveCollection<List<Guid>>("_cohortIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("CohortIds");
+
                     b.HasKey("Id");
 
                     b.ToTable("activities", (string)null);
@@ -107,6 +112,7 @@ namespace Studia.Infrastructure.Persistence.EfCore.Migrations
                         .HasColumnType("character varying(30)");
 
                     b.Property<string>("InvitationCode")
+                        .IsRequired()
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
 
@@ -220,6 +226,11 @@ namespace Studia.Infrastructure.Persistence.EfCore.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.PrimitiveCollection<List<Guid>>("_cohortIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("CohortIds");
+
                     b.HasKey("Id");
 
                     b.ToTable("sections", (string)null);
@@ -283,12 +294,54 @@ namespace Studia.Infrastructure.Persistence.EfCore.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
+                    b.Property<string>("TypeId")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("ValueId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
                     b.ToTable("users", (string)null);
+                });
+
+            modelBuilder.Entity("Studia.Domain.Activities.Activity", b =>
+                {
+                    b.OwnsMany("Studia.Domain.Activities.ActivityFile", "_files", b1 =>
+                        {
+                            b1.Property<Guid>("ActivityId");
+
+                            b1.Property<int>("__synthesizedOrdinal")
+                                .ValueGeneratedOnAdd();
+
+                            b1.Property<string>("FileName")
+                                .IsRequired()
+                                .HasMaxLength(260);
+
+                            b1.Property<long>("SizeBytes");
+
+                            b1.Property<string>("StorageKey")
+                                .IsRequired()
+                                .HasMaxLength(500);
+
+                            b1.HasKey("ActivityId", "__synthesizedOrdinal");
+
+                            b1.ToTable("activities");
+
+                            b1
+                                .ToJson("_files")
+                                .HasColumnType("jsonb");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ActivityId");
+                        });
+
+                    b.Navigation("_files");
                 });
 
             modelBuilder.Entity("Studia.Domain.Submissions.Submission", b =>

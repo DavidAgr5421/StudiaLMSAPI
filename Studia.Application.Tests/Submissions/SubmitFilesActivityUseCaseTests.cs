@@ -56,6 +56,21 @@ public class SubmitFilesActivityUseCaseTests
     }
 
     [Fact]
+    public void Execute_WithDescription_SetsTextContentOnResult()
+    {
+        var (activities, users, _, _, useCase) = CreateSut();
+        var activity = Activity.Create(Guid.NewGuid(), "Tarea", "Suba su documento", FutureDueDate, ActivityType.ConArchivo, maxFiles: 2);
+        activities.Save(activity);
+        var student = CreateStudentWithName();
+        users.Save(student);
+        var files = new List<SubmittedFileInput> { new("tarea.pdf", [1, 2, 3]) };
+
+        var result = useCase.Execute(new SubmitFilesCommand(activity.Id, student.Id, files, "<p>Notas de la entrega</p>"));
+
+        Assert.Equal("<p>Notas de la entrega</p>", result.TextContent);
+    }
+
+    [Fact]
     public void Execute_WhenActivityIsTextOnly_Throws()
     {
         var (activities, users, _, _, useCase) = CreateSut();

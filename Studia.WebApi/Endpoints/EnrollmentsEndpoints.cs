@@ -30,6 +30,12 @@ public static class EnrollmentsEndpoints
             })
             .RequireAuthorization();
 
+        // Auto-servicio: "mis inscripciones", para que el estudiante sepa a qué cursos
+        // pertenece (con qué estado) sin depender de que el profesor se lo diga.
+        group.MapGet("/mine", (HttpContext httpContext, IGetEnrollmentsByStudentUseCase useCase) =>
+                Results.Ok(useCase.Execute(new GetEnrollmentsByStudentQuery(httpContext.User.GetUserId()))))
+            .RequireAuthorization();
+
         // Estas dos sí las decide el profesor sobre la inscripción de OTRA persona.
         group.MapPost("/{enrollmentId:guid}/approve", (Guid enrollmentId, IApproveEnrollmentUseCase useCase) =>
                 Results.Ok(useCase.Execute(new ApproveEnrollmentCommand(enrollmentId))))

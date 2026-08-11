@@ -22,16 +22,18 @@ public class EnrollByInvitationUseCaseTests
     private static User CreateStudent(string email = "estudiante@sena.edu.co") =>
         User.Register(Email.Create(email), "hashed-value", Role.Estudiante);
 
+    // El código de invitación funciona sin importar el modo del curso -- acá se usa
+    // ConAprobacion a propósito para probar que la invitación se salta esa aprobación.
     [Fact]
     public void Execute_WithValidCode_EnrollsStudentAsApproved()
     {
         var (courses, users, enrollments, useCase) = CreateSut();
-        var course = Course.Create("English C1", EnrollmentMode.PorInvitacion, Guid.NewGuid());
+        var course = Course.Create("English C1", EnrollmentMode.ConAprobacion, Guid.NewGuid());
         courses.Save(course);
         var student = CreateStudent();
         users.Save(student);
 
-        var result = useCase.Execute(new EnrollByInvitationCommand(course.InvitationCode!, student.Id));
+        var result = useCase.Execute(new EnrollByInvitationCommand(course.InvitationCode, student.Id));
 
         Assert.Equal(EnrollmentStatus.Aprobada, result.Status);
         Assert.Single(enrollments.SavedEnrollments);
@@ -52,27 +54,27 @@ public class EnrollByInvitationUseCaseTests
     public void Execute_WhenCourseIsArchived_Throws()
     {
         var (courses, users, _, useCase) = CreateSut();
-        var course = Course.Create("English C1", EnrollmentMode.PorInvitacion, Guid.NewGuid());
+        var course = Course.Create("English C1", EnrollmentMode.ConAprobacion, Guid.NewGuid());
         course.Archive();
         courses.Save(course);
         var student = CreateStudent();
         users.Save(student);
 
         Assert.Throws<InvalidOperationException>(() =>
-            useCase.Execute(new EnrollByInvitationCommand(course.InvitationCode!, student.Id)));
+            useCase.Execute(new EnrollByInvitationCommand(course.InvitationCode, student.Id)));
     }
 
     [Fact]
     public void Execute_WhenStudentAlreadyEnrolled_Throws()
     {
         var (courses, users, _, useCase) = CreateSut();
-        var course = Course.Create("English C1", EnrollmentMode.PorInvitacion, Guid.NewGuid());
+        var course = Course.Create("English C1", EnrollmentMode.ConAprobacion, Guid.NewGuid());
         courses.Save(course);
         var student = CreateStudent();
         users.Save(student);
-        useCase.Execute(new EnrollByInvitationCommand(course.InvitationCode!, student.Id));
+        useCase.Execute(new EnrollByInvitationCommand(course.InvitationCode, student.Id));
 
         Assert.Throws<InvalidOperationException>(() =>
-            useCase.Execute(new EnrollByInvitationCommand(course.InvitationCode!, student.Id)));
+            useCase.Execute(new EnrollByInvitationCommand(course.InvitationCode, student.Id)));
     }
 }

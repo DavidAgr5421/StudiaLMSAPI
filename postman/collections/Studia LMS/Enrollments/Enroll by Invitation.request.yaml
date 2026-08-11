@@ -1,0 +1,17 @@
+$kind: http-request
+name: Enroll by Invitation
+method: POST
+url: '{{baseUrl}}/api/enrollments/invitation'
+order: 5000
+description: 'Self-service: the authenticated student enrolls using an invitation code. StudentId is taken from the JWT.'
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Authorization
+    value: 'Bearer {{authToken}}'
+body:
+  type: json
+  content: |-
+    {
+      "invitationCode": "{{invitationCode}}"
+    }

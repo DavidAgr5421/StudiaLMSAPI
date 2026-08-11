@@ -13,4 +13,6 @@ public interface ICourseRepository
     IReadOnlyCollection<Course> Search(string query);
 
     IReadOnlyCollection<Course> GetByProfesorId(Guid profesorId);
+
+    void Delete(Guid id);
 }

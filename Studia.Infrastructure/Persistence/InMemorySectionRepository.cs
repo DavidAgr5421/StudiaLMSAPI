@@ -14,4 +14,6 @@ public class InMemorySectionRepository : ISectionRepository
 
     public IReadOnlyCollection<Section> GetByCourseId(Guid courseId) =>
         _sections.Values.Where(s => s.CourseId == courseId).ToList();
+
+    public void Delete(Guid id) => _sections.TryRemove(id, out _);
 }

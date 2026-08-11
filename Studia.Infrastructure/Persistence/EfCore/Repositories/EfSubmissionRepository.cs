@@ -20,4 +20,6 @@ public class EfSubmissionRepository(StudiaDbContext dbContext) : ISubmissionRepo
 
     public IReadOnlyCollection<Submission> GetByActivityId(Guid activityId) =>
         dbContext.Submissions.Where(s => s.ActivityId == activityId).ToList();
+
+    public void DeleteByActivityId(Guid activityId) => dbContext.Submissions.Where(s => s.ActivityId == activityId).ExecuteDelete();
 }

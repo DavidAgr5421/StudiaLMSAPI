@@ -1,0 +1,18 @@
+$kind: http-request
+name: Grade Submission
+method: POST
+url: '{{baseUrl}}/api/submissions/{{submissionId}}/grade'
+order: 3000
+description: 'Grades a submission. Requires Profesor or Administrador role.'
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Authorization
+    value: 'Bearer {{authToken}}'
+body:
+  type: json
+  content: |-
+    {
+      "score": 85,
+      "feedback": "Good work!"
+    }

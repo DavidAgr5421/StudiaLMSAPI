@@ -9,8 +9,19 @@ public record ActivityResult(
     string Description,
     DateTime DueDateUtc,
     ActivityType Type,
-    int? MaxFiles)
+    int? MaxFiles,
+    IReadOnlyCollection<Guid> CohortIds,
+    IReadOnlyCollection<ActivityFileResult> Files)
 {
     public static ActivityResult FromDomain(Activity activity) =>
-        new(activity.Id, activity.SectionId, activity.Title, activity.Description, activity.DueDateUtc, activity.Type, activity.MaxFiles);
+        new(
+            activity.Id,
+            activity.SectionId,
+            activity.Title,
+            activity.Description,
+            activity.DueDateUtc,
+            activity.Type,
+            activity.MaxFiles,
+            activity.CohortIds,
+            activity.Files.Select(ActivityFileResult.FromDomain).ToList());
 }

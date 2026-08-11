@@ -1,5 +1,7 @@
 using Studia.Application.Submissions;
+using Studia.Application.Tests.Users;
 using Studia.Domain.Submissions;
+using Studia.Domain.Users;
 
 namespace Studia.Application.Tests.Submissions;
 
@@ -14,7 +16,7 @@ public class GetSubmissionsByActivityUseCaseTests
         var other = Submission.SubmitText(Guid.NewGuid(), Guid.NewGuid(), "Otra", DateTime.UtcNow.AddDays(1));
         repository.Save(matching);
         repository.Save(other);
-        var useCase = new GetSubmissionsByActivityUseCase(repository);
+        var useCase = new GetSubmissionsByActivityUseCase(repository, new FakeUserRepository());
 
         var results = useCase.Execute(new GetSubmissionsByActivityQuery(activityId));
 
@@ -23,9 +25,28 @@ public class GetSubmissionsByActivityUseCaseTests
     }
 
     [Fact]
+    public void Execute_IncludesStudentName()
+    {
+        var repository = new FakeSubmissionRepository();
+        var activityId = Guid.NewGuid();
+        var student = User.Register(Email.Create("ana@sena.edu.co"), "hash", Role.Estudiante, "Ana Torres");
+        var submission = Submission.SubmitText(activityId, student.Id, "Respuesta", DateTime.UtcNow.AddDays(1));
+        repository.Save(submission);
+
+        var users = new FakeUserRepository();
+        users.Save(student);
+
+        var useCase = new GetSubmissionsByActivityUseCase(repository, users);
+
+        var result = Assert.Single(useCase.Execute(new GetSubmissionsByActivityQuery(activityId)));
+
+        Assert.Equal("Ana Torres", result.StudentName);
+    }
+
+    [Fact]
     public void Execute_WithNoSubmissions_ReturnsEmpty()
     {
-        var useCase = new GetSubmissionsByActivityUseCase(new FakeSubmissionRepository());
+        var useCase = new GetSubmissionsByActivityUseCase(new FakeSubmissionRepository(), new FakeUserRepository());
 
         var results = useCase.Execute(new GetSubmissionsByActivityQuery(Guid.NewGuid()));
 

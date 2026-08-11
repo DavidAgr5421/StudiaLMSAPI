@@ -9,4 +9,6 @@ public interface IActivityRepository
     Activity? GetById(Guid id);
 
     IReadOnlyCollection<Activity> GetBySectionId(Guid sectionId);
+
+    void DeleteBySectionId(Guid sectionId);
 }

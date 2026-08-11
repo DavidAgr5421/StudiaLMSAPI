@@ -26,4 +26,6 @@ public class EfCohortRepository(StudiaDbContext dbContext) : ICohortRepository
             .AsEnumerable()
             .Where(c => c.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
             .ToList();
+
+    public void DeleteByCourseId(Guid courseId) => dbContext.Cohorts.Where(c => c.CourseId == courseId).ExecuteDelete();
 }

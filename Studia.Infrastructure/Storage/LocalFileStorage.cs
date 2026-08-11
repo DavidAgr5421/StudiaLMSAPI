@@ -18,4 +18,10 @@ public class LocalFileStorage : IFileStorage
         File.WriteAllBytes(Path.Combine(_rootPath, storageKey), content);
         return storageKey;
     }
+
+    public byte[]? Retrieve(string storageKey)
+    {
+        var path = Path.Combine(_rootPath, storageKey);
+        return File.Exists(path) ? File.ReadAllBytes(path) : null;
+    }
 }

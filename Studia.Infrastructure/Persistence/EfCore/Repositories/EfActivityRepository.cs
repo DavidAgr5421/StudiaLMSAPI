@@ -20,4 +20,6 @@ public class EfActivityRepository(StudiaDbContext dbContext) : IActivityReposito
 
     public IReadOnlyCollection<Activity> GetBySectionId(Guid sectionId) =>
         dbContext.Activities.Where(a => a.SectionId == sectionId).ToList();
+
+    public void DeleteBySectionId(Guid sectionId) => dbContext.Activities.Where(a => a.SectionId == sectionId).ExecuteDelete();
 }

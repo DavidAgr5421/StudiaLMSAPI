@@ -15,4 +15,13 @@ public class FakeEnrollmentRepository : IEnrollmentRepository
 
     public IReadOnlyCollection<Enrollment> GetByCourseId(Guid courseId) =>
         _enrollments.Values.Where(e => e.CourseId == courseId).ToList();
+
+    public IReadOnlyCollection<Enrollment> GetByStudentId(Guid studentId) =>
+        _enrollments.Values.Where(e => e.StudentId == studentId).ToList();
+
+    public void DeleteByCourseId(Guid courseId)
+    {
+        foreach (var enrollment in GetByCourseId(courseId))
+            _enrollments.Remove(enrollment.Id);
+    }
 }

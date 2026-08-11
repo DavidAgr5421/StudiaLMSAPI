@@ -55,7 +55,16 @@ public class Submission
         return new Submission(Guid.NewGuid(), activityId, studentId, status, submittedAtUtc, textContent.Trim(), []);
     }
 
-    public static Submission SubmitWithFiles(Guid activityId, Guid studentId, IReadOnlyCollection<SubmittedFile> files, int maxFiles, DateTime dueDateUtc)
+    // description es opcional a propósito -- a diferencia de SubmitText (donde el texto ES la
+    // entrega), acá es solo un complemento a los archivos, igual que la descripción de una
+    // sección para el profesor.
+    public static Submission SubmitWithFiles(
+        Guid activityId,
+        Guid studentId,
+        IReadOnlyCollection<SubmittedFile> files,
+        int maxFiles,
+        DateTime dueDateUtc,
+        string? description = null)
     {
         ValidateIds(activityId, studentId);
 
@@ -67,8 +76,9 @@ public class Submission
 
         var submittedAtUtc = DateTime.UtcNow;
         var status = submittedAtUtc > dueDateUtc ? SubmissionStatus.Tardia : SubmissionStatus.ATiempo;
+        var trimmedDescription = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
 
-        return new Submission(Guid.NewGuid(), activityId, studentId, status, submittedAtUtc, null, files.ToList());
+        return new Submission(Guid.NewGuid(), activityId, studentId, status, submittedAtUtc, trimmedDescription, files.ToList());
     }
 
     public void Grade(int score, string? feedback)

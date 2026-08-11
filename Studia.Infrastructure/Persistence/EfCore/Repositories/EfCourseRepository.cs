@@ -29,4 +29,6 @@ public class EfCourseRepository(StudiaDbContext dbContext) : ICourseRepository
 
     public IReadOnlyCollection<Course> GetByProfesorId(Guid profesorId) =>
         dbContext.Courses.Where(c => c.ProfesorId == profesorId).ToList();
+
+    public void Delete(Guid id) => dbContext.Courses.Where(c => c.Id == id).ExecuteDelete();
 }

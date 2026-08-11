@@ -1,0 +1,15 @@
+$kind: http-request
+name: Register
+description: Requires authentication. Revokes the current bearer token.
+url: "{{baseUrl}}/api/auth/register"
+method: POST
+headers:
+  Authorization: Bearer {{authToken}}
+body:
+  type: json
+  content: |-
+    {
+        "email": "testPost@gmail.com",
+        "password": "123456"
+    }
+order: 2842

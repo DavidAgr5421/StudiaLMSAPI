@@ -1,0 +1,9 @@
+$kind: http-request
+name: Mark Notification as Read
+method: POST
+url: '{{baseUrl}}/api/notifications/{{notificationId}}/read'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{authToken}}'
+description: 'Marks a notification as read. Any authenticated user can call this.'

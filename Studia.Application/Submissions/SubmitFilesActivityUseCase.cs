@@ -43,7 +43,8 @@ public class SubmitFilesActivityUseCase(
             })
             .ToList();
 
-        var submission = Submission.SubmitWithFiles(activity.Id, student.Id, files, activity.MaxFiles!.Value, activity.DueDateUtc);
+        var submission = Submission.SubmitWithFiles(
+            activity.Id, student.Id, files, activity.MaxFiles!.Value, activity.DueDateUtc, command.Description);
 
         submissionRepository.Save(submission);
 

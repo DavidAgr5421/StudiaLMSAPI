@@ -1,0 +1,3 @@
+$kind: collection
+name: Sections
+description: 'Course section management endpoints.'

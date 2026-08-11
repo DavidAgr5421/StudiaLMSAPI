@@ -1,0 +1,4 @@
+name: TestEnv
+values:
+  - key: bearToken
+    secret: true

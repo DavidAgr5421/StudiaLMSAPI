@@ -14,4 +14,10 @@ public class InMemorySubmissionRepository : ISubmissionRepository
 
     public IReadOnlyCollection<Submission> GetByActivityId(Guid activityId) =>
         _submissions.Values.Where(s => s.ActivityId == activityId).ToList();
+
+    public void DeleteByActivityId(Guid activityId)
+    {
+        foreach (var submission in GetByActivityId(activityId))
+            _submissions.TryRemove(submission.Id, out _);
+    }
 }

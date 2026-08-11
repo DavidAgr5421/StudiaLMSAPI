@@ -10,6 +10,15 @@ public class Activity
     public ActivityType Type { get; }
     public int? MaxFiles { get; }
 
+    // Vacío = global (visible para todo el curso). Si tiene elementos, solo los
+    // estudiantes de esas fichas pueden ver la actividad.
+    private readonly List<Guid> _cohortIds = [];
+    public IReadOnlyCollection<Guid> CohortIds => _cohortIds.AsReadOnly();
+
+    // Material de apoyo que sube el profesor -- distinto de las entregas de los estudiantes.
+    private readonly List<ActivityFile> _files = [];
+    public IReadOnlyCollection<ActivityFile> Files => _files.AsReadOnly();
+
     private Activity(Guid id, Guid sectionId, string title, string description, DateTime dueDateUtc, ActivityType type, int? maxFiles)
     {
         Id = id;
@@ -21,7 +30,15 @@ public class Activity
         MaxFiles = maxFiles;
     }
 
-    public static Activity Create(Guid sectionId, string title, string description, DateTime dueDateUtc, ActivityType type, int? maxFiles)
+    public static Activity Create(
+        Guid sectionId,
+        string title,
+        string description,
+        DateTime dueDateUtc,
+        ActivityType type,
+        int? maxFiles,
+        IReadOnlyCollection<Guid>? cohortIds = null,
+        IReadOnlyCollection<ActivityFile>? files = null)
     {
         if (sectionId == Guid.Empty)
             throw new ArgumentException("La sección no es válida.", nameof(sectionId));
@@ -40,6 +57,10 @@ public class Activity
                 throw new ArgumentException("Una actividad de solo texto no debe tener un máximo de archivos.", nameof(maxFiles));
         }
 
-        return new Activity(Guid.NewGuid(), sectionId, title.Trim(), description?.Trim() ?? string.Empty, dueDateUtc, type, maxFiles);
+        var activity = new Activity(Guid.NewGuid(), sectionId, title.Trim(), description?.Trim() ?? string.Empty, dueDateUtc, type, maxFiles);
+        activity._cohortIds.AddRange(cohortIds ?? []);
+        activity._files.AddRange(files ?? []);
+
+        return activity;
     }
 }
