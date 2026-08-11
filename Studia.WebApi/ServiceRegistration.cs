@@ -53,6 +53,11 @@ public static class ServiceRegistration
         services.AddScoped<ILoginUseCase, LoginUseCase>();
         services.AddScoped<ILogoutUseCase, LogoutUseCase>();
         services.AddScoped<ISearchUsersUseCase, SearchUsersUseCase>();
+        services.AddScoped<IGetUserByIdUseCase, GetUserByIdUseCase>();
+        services.AddScoped<IUpdateNameUseCase, UpdateNameUseCase>();
+        services.AddScoped<IChangeEmailUseCase, ChangeEmailUseCase>();
+        services.AddScoped<IChangePasswordUseCase, ChangePasswordUseCase>();
+        services.AddScoped<ISetIdentificationUseCase, SetIdentificationUseCase>();
 
         services.AddScoped<ICreateCourseUseCase, CreateCourseUseCase>();
         services.AddScoped<ISearchCoursesUseCase, SearchCoursesUseCase>();
@@ -72,17 +77,20 @@ public static class ServiceRegistration
         services.AddScoped<IEnrollByInvitationUseCase, EnrollByInvitationUseCase>();
         services.AddScoped<IAddStudentsToCourseUseCase, AddStudentsToCourseUseCase>();
         services.AddScoped<IGetEnrollmentsByCourseUseCase, GetEnrollmentsByCourseUseCase>();
+        services.AddScoped<IGetEnrollmentsByStudentUseCase, GetEnrollmentsByStudentUseCase>();
 
         services.AddScoped<ICreateSectionUseCase, CreateSectionUseCase>();
         services.AddScoped<IGetSectionsByCourseUseCase, GetSectionsByCourseUseCase>();
         services.AddScoped<IDeleteSectionUseCase, DeleteSectionUseCase>();
         services.AddScoped<ICreateActivityUseCase, CreateActivityUseCase>();
         services.AddScoped<IGetActivitiesBySectionUseCase, GetActivitiesBySectionUseCase>();
+        services.AddScoped<IGetActivityFileUseCase, GetActivityFileUseCase>();
 
         services.AddScoped<ISubmitTextActivityUseCase, SubmitTextActivityUseCase>();
         services.AddScoped<ISubmitFilesActivityUseCase, SubmitFilesActivityUseCase>();
         services.AddScoped<IGradeSubmissionUseCase, GradeSubmissionUseCase>();
         services.AddScoped<IGetSubmissionsByActivityUseCase, GetSubmissionsByActivityUseCase>();
+        services.AddScoped<IGetSubmissionForActivityUseCase, GetSubmissionForActivityUseCase>();
 
         services.AddScoped<INotifyNewActivityUseCase, NotifyNewActivityUseCase>();
         services.AddScoped<INotifyNewSectionUseCase, NotifyNewSectionUseCase>();

@@ -67,6 +67,28 @@ public class SubmissionTests
     }
 
     [Fact]
+    public void SubmitWithFiles_WithDescription_TrimsAndSetsTextContent()
+    {
+        var files = new[] { SubmittedFile.Create("a.pdf", "key1", 1024) };
+
+        var submission = Submission.SubmitWithFiles(
+            Guid.NewGuid(), Guid.NewGuid(), files, maxFiles: 2, DateTime.UtcNow.AddDays(1), description: "  <p>Notas</p>  ");
+
+        Assert.Equal("<p>Notas</p>", submission.TextContent);
+    }
+
+    [Fact]
+    public void SubmitWithFiles_WithBlankDescription_LeavesTextContentNull()
+    {
+        var files = new[] { SubmittedFile.Create("a.pdf", "key1", 1024) };
+
+        var submission = Submission.SubmitWithFiles(
+            Guid.NewGuid(), Guid.NewGuid(), files, maxFiles: 2, DateTime.UtcNow.AddDays(1), description: "   ");
+
+        Assert.Null(submission.TextContent);
+    }
+
+    [Fact]
     public void Grade_WithValidScore_SetsScoreAndFeedback()
     {
         var submission = Submission.SubmitText(Guid.NewGuid(), Guid.NewGuid(), "Respuesta", DateTime.UtcNow.AddDays(1));

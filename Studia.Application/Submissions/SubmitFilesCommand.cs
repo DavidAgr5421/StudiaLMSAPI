@@ -1,3 +1,3 @@
 namespace Studia.Application.Submissions;
 
-public record SubmitFilesCommand(Guid ActivityId, Guid StudentId, IReadOnlyCollection<SubmittedFileInput> Files);
+public record SubmitFilesCommand(Guid ActivityId, Guid StudentId, IReadOnlyCollection<SubmittedFileInput> Files, string? Description = null);

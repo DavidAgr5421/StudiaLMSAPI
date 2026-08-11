@@ -17,18 +17,22 @@ public static class SubmissionsEndpoints
             .RequireAuthorization();
 
         // Auto-servicio (multipart/form-data): en Postman, Body -> form-data, una key "files"
-        // repetida por cada archivo (tipo File, no Text).
-        group.MapPost("/files/{activityId:guid}", async (Guid activityId, IFormFileCollection files, HttpContext httpContext, ISubmitFilesActivityUseCase useCase) =>
+        // repetida por cada archivo (tipo File, no Text) y opcionalmente "description" (tipo
+        // Text) -- el mismo HTML enriquecido que usa el profesor para describir una sección.
+        group.MapPost("/files/{activityId:guid}", async (Guid activityId, HttpContext httpContext, ISubmitFilesActivityUseCase useCase) =>
             {
+                var form = await httpContext.Request.ReadFormAsync();
+                var description = form.TryGetValue("description", out var descriptionValue) ? descriptionValue.ToString() : null;
+
                 var inputs = new List<SubmittedFileInput>();
-                foreach (var file in files)
+                foreach (var file in form.Files)
                 {
                     using var stream = new MemoryStream();
                     await file.CopyToAsync(stream);
                     inputs.Add(new SubmittedFileInput(file.FileName, stream.ToArray()));
                 }
 
-                var result = useCase.Execute(new SubmitFilesCommand(activityId, httpContext.User.GetUserId(), inputs));
+                var result = useCase.Execute(new SubmitFilesCommand(activityId, httpContext.User.GetUserId(), inputs, description));
                 return Results.Created($"/api/submissions/{result.Id}", result);
             })
             .RequireAuthorization()

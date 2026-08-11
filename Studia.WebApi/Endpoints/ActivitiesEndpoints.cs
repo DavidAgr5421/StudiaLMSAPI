@@ -52,5 +52,24 @@ public static class ActivitiesEndpoints
         group.MapGet("/{activityId:guid}/submissions", (Guid activityId, IGetSubmissionsByActivityUseCase useCase) =>
                 Results.Ok(useCase.Execute(new GetSubmissionsByActivityQuery(activityId))))
             .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
+
+        // Descarga del material de apoyo -- cualquier usuario logueado (el filtrado por
+        // ficha ya pasó al listar la actividad; acá alcanza con no ser anónimo).
+        group.MapGet("/{activityId:guid}/files/{storageKey}", (Guid activityId, string storageKey, IGetActivityFileUseCase useCase) =>
+            {
+                var result = useCase.Execute(new GetActivityFileQuery(activityId, storageKey));
+                return Results.File(result.Content, "application/octet-stream", result.FileName);
+            })
+            .RequireAuthorization();
+
+        // "Mi entrega": auto-servicio, igual que la descarga de arriba -- el estudiante
+        // solo puede ver la suya (el id sale del JWT, no de la query). Sirve para que el
+        // front sepa si ya entregó y muestre el estado/nota en vez del formulario.
+        group.MapGet("/{activityId:guid}/my-submission", (Guid activityId, HttpContext httpContext, IGetSubmissionForActivityUseCase useCase) =>
+            {
+                var result = useCase.Execute(new GetSubmissionForActivityQuery(activityId, httpContext.User.GetUserId()));
+                return result is null ? Results.NotFound() : Results.Ok(result);
+            })
+            .RequireAuthorization();
     }
 }
