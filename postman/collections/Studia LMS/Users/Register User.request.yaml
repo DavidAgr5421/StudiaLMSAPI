@@ -1,9 +1,0 @@
-$kind: http-request
-name: Search Users
-method: GET
-url: '{{baseUrl}}/api/users/search?q={{searchQuery}}'
-order: 1000
-headers:
-  - key: Authorization
-    value: 'Bearer {{authToken}}'
-description: 'Search users by query string. Requires Administrador or Profesor role.'

@@ -1,6 +1,0 @@
-$kind: collection
-name: Studia LMS
-description: 'REST API collection for the Studia LMS application. Base URL: {{baseUrl}}'
-variables:
-  - key: baseUrl
-    value: 'http://localhost:5005'
