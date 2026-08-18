@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+**/.idea/
+**/.vs/
+.git/
+.claude/
+.postman/
+postman/
+*.md

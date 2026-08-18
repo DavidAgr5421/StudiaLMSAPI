@@ -4,3 +4,9 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 .idea/
+
+# Colecciones locales de Postman: viven en el workspace de Postman del dev,
+# no en el repo (y esta carpeta ha llegado a sincronizar colecciones de
+# otros proyectos por error).
+/postman/
+/.postman/

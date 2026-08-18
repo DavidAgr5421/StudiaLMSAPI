@@ -1,9 +1,0 @@
-$kind: http-request
-name: Notify New Section
-method: POST
-url: '{{baseUrl}}/api/notifications/new-section/{{sectionId}}'
-order: 2000
-headers:
-  - key: Authorization
-    value: 'Bearer {{authToken}}'
-description: 'Sends notifications to enrolled students about a new section. Requires Profesor or Administrador role.'

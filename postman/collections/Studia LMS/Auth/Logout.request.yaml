@@ -1,9 +1,0 @@
-$kind: http-request
-name: Logout
-method: POST
-url: '{{baseUrl}}/api/auth/logout'
-order: 2000
-headers:
-  - key: Authorization
-    value: 'Bearer {{authToken}}'
-description: 'Requires authentication. Revokes the current bearer token.'

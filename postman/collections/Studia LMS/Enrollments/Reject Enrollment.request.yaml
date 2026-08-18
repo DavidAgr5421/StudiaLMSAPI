@@ -1,9 +1,0 @@
-$kind: http-request
-name: Reject Enrollment
-method: POST
-url: '{{baseUrl}}/api/enrollments/{{enrollmentId}}/reject'
-order: 4000
-headers:
-  - key: Authorization
-    value: 'Bearer {{authToken}}'
-description: 'Rejects a pending enrollment request. Requires Profesor or Administrador role.'

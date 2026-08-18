@@ -1,9 +1,0 @@
-$kind: http-request
-name: Notify New Activity
-method: POST
-url: '{{baseUrl}}/api/notifications/new-activity/{{activityId}}'
-order: 1000
-headers:
-  - key: Authorization
-    value: 'Bearer {{authToken}}'
-description: 'Sends notifications to enrolled students about a new activity. Requires Profesor or Administrador role.'
