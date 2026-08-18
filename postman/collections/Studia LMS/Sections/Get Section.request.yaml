@@ -1,4 +1,5 @@
 $kind: http-request
-url: ""
+name: Get Section
+url: "{{baseUrl}}/api/sections/"
 method: GET
 order: 3727124887240875

@@ -105,6 +105,10 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    // Aplica migraciones pendientes al arrancar -- en Render no hay una forma
+    // cómoda de correr "dotnet ef database update" a mano contra la base de
+    // datos administrada, así que el propio servicio se encarga al iniciar.
+    scope.ServiceProvider.GetRequiredService<StudiaDbContext>().Database.Migrate();
     DbSeeder.SeedDefaultAdmin(scope.ServiceProvider, app.Configuration);
 }
 

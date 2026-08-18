@@ -12,8 +12,18 @@ public record CourseResult(
     CourseStatus Status,
     string InvitationCode,
     Guid ProfesorId,
-    string? ProfesorName = null)
+    string? ProfesorName = null,
+    string? Color = null,
+    string? CoverImageFileName = null)
 {
     public static CourseResult FromDomain(Course course) =>
-        new(course.Id, course.Name, course.EnrollmentMode, course.Status, course.InvitationCode, course.ProfesorId);
+        new(
+            course.Id,
+            course.Name,
+            course.EnrollmentMode,
+            course.Status,
+            course.InvitationCode,
+            course.ProfesorId,
+            Color: course.Color,
+            CoverImageFileName: course.CoverImageFileName);
 }

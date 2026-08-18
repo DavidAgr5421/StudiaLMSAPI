@@ -64,6 +64,10 @@ public static class ServiceRegistration
         services.AddScoped<IGetCourseByIdUseCase, GetCourseByIdUseCase>();
         services.AddScoped<IGetCoursesByProfesorUseCase, GetCoursesByProfesorUseCase>();
         services.AddScoped<IDeleteCourseUseCase, DeleteCourseUseCase>();
+        services.AddScoped<IUpdateCourseColorUseCase, UpdateCourseColorUseCase>();
+        services.AddScoped<ISetCourseCoverImageUseCase, SetCourseCoverImageUseCase>();
+        services.AddScoped<IRemoveCourseCoverImageUseCase, RemoveCourseCoverImageUseCase>();
+        services.AddScoped<IGetCourseCoverImageUseCase, GetCourseCoverImageUseCase>();
 
         services.AddScoped<ICreateCohortUseCase, CreateCohortUseCase>();
         services.AddScoped<IAssignStudentToCohortUseCase, AssignStudentToCohortUseCase>();
@@ -84,6 +88,7 @@ public static class ServiceRegistration
         services.AddScoped<IDeleteSectionUseCase, DeleteSectionUseCase>();
         services.AddScoped<ICreateActivityUseCase, CreateActivityUseCase>();
         services.AddScoped<IGetActivitiesBySectionUseCase, GetActivitiesBySectionUseCase>();
+        services.AddScoped<IGetActivityByIdUseCase, GetActivityByIdUseCase>();
         services.AddScoped<IGetActivityFileUseCase, GetActivityFileUseCase>();
 
         services.AddScoped<ISubmitTextActivityUseCase, SubmitTextActivityUseCase>();

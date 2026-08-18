@@ -11,7 +11,10 @@ public record ActivityResult(
     ActivityType Type,
     int? MaxFiles,
     IReadOnlyCollection<Guid> CohortIds,
-    IReadOnlyCollection<ActivityFileResult> Files)
+    IReadOnlyCollection<ActivityFileResult> Files,
+    // Solo lo completa GetActivityByIdUseCase (resuelve Sección -> Curso) -- los listados
+    // por sección no lo necesitan porque el caller ya conoce el curso por contexto.
+    Guid? CourseId = null)
 {
     public static ActivityResult FromDomain(Activity activity) =>
         new(
