@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using Studia.Application.Auth;
 using Studia.Infrastructure.Auth;
 using Studia.Infrastructure.Persistence.EfCore;
@@ -34,6 +35,13 @@ builder.Services.AddCors(options =>
 // ---------- Base de datos ----------
 var connectionString = builder.Configuration.GetConnectionString("StudiaDb")
     ?? throw new InvalidOperationException("Falta configurar ConnectionStrings:StudiaDb.");
+
+// Render (y otros proveedores tipo Heroku) muestran la connection string como una
+// URI libpq ("postgres://user:pass@host:puerto/db"), pero Npgsql espera el formato
+// "Host=...;Port=...;...". Se acepta cualquiera de los dos formatos para no
+// depender de que se transcriba a mano.
+if (connectionString.StartsWith("postgres://") || connectionString.StartsWith("postgresql://"))
+    connectionString = ConvertPostgresUriToNpgsqlConnectionString(connectionString);
 
 builder.Services.AddDbContext<StudiaDbContext>(options => options.UseNpgsql(connectionString));
 
@@ -133,3 +141,21 @@ app.MapSubmissionsEndpoints();
 app.MapNotificationsEndpoints();
 
 app.Run();
+
+static string ConvertPostgresUriToNpgsqlConnectionString(string uri)
+{
+    var databaseUri = new Uri(uri);
+    var userInfo = databaseUri.UserInfo.Split(':', 2);
+
+    var builder = new NpgsqlConnectionStringBuilder
+    {
+        Host = databaseUri.Host,
+        Port = databaseUri.Port > 0 ? databaseUri.Port : 5432,
+        Database = databaseUri.AbsolutePath.TrimStart('/'),
+        Username = Uri.UnescapeDataString(userInfo[0]),
+        Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "",
+        SslMode = SslMode.Require
+    };
+
+    return builder.ConnectionString;
+}
