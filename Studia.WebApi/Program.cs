@@ -39,9 +39,27 @@ var connectionString = builder.Configuration.GetConnectionString("StudiaDb")
 // Render (y otros proveedores tipo Heroku) muestran la connection string como una
 // URI libpq ("postgres://user:pass@host:puerto/db"), pero Npgsql espera el formato
 // "Host=...;Port=...;...". Se acepta cualquiera de los dos formatos para no
-// depender de que se transcriba a mano.
-if (connectionString.StartsWith("postgres://") || connectionString.StartsWith("postgresql://"))
+// depender de que se transcriba a mano. El Trim('"') cubre el error común de
+// pegar el valor con comillas incluidas en el panel de variables de entorno.
+connectionString = connectionString.Trim().Trim('"');
+
+if (connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
+    connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+{
     connectionString = ConvertPostgresUriToNpgsqlConnectionString(connectionString);
+}
+
+try
+{
+    _ = new NpgsqlConnectionStringBuilder(connectionString);
+}
+catch (Exception ex)
+{
+    var preview = connectionString.Length > 12 ? connectionString[..12] : connectionString;
+    throw new InvalidOperationException(
+        $"ConnectionStrings:StudiaDb no tiene un formato válido para Npgsql. " +
+        $"Empieza con \"{preview}...\" y tiene {connectionString.Length} caracteres.", ex);
+}
 
 builder.Services.AddDbContext<StudiaDbContext>(options => options.UseNpgsql(connectionString));
 
