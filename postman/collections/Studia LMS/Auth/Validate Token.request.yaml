@@ -1,9 +1,0 @@
-$kind: http-request
-name: Me
-method: GET
-url: '{{baseUrl}}/api/auth/me'
-order: 3000
-headers:
-  - key: Authorization
-    value: 'Bearer {{authToken}}'
-description: 'Returns the current authenticated user info (userId, email, role) from the JWT claims.'

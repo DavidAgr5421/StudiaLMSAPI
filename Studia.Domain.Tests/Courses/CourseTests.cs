@@ -79,4 +79,70 @@ public class CourseTests
 
         Assert.NotEqual(first.InvitationCode, second.InvitationCode);
     }
+
+    [Fact]
+    public void UpdateColor_WithValidHex_SetsColor()
+    {
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
+
+        course.UpdateColor("#7C3AED");
+
+        Assert.Equal("#7C3AED", course.Color);
+    }
+
+    [Fact]
+    public void UpdateColor_WithNull_ClearsColor()
+    {
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
+        course.UpdateColor("#7C3AED");
+
+        course.UpdateColor(null);
+
+        Assert.Null(course.Color);
+    }
+
+    [Theory]
+    [InlineData("7C3AED")]
+    [InlineData("#7C3AE")]
+    [InlineData("#GGGGGG")]
+    [InlineData("red")]
+    public void UpdateColor_WithInvalidFormat_Throws(string invalidColor)
+    {
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
+
+        Assert.Throws<ArgumentException>(() => course.UpdateColor(invalidColor));
+    }
+
+    [Fact]
+    public void SetCoverImage_WithValidData_SetsFields()
+    {
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
+
+        course.SetCoverImage("portada.png", "storage-key-123", 1024);
+
+        Assert.Equal("portada.png", course.CoverImageFileName);
+        Assert.Equal("storage-key-123", course.CoverImageStorageKey);
+        Assert.Equal(1024, course.CoverImageSizeBytes);
+    }
+
+    [Fact]
+    public void SetCoverImage_TooLarge_Throws()
+    {
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
+
+        Assert.Throws<ArgumentException>(() => course.SetCoverImage("portada.png", "key", Course.MaxCoverImageSizeBytes + 1));
+    }
+
+    [Fact]
+    public void RemoveCoverImage_ClearsFields()
+    {
+        var course = Course.Create("English A1", EnrollmentMode.Abierta, Guid.NewGuid());
+        course.SetCoverImage("portada.png", "storage-key-123", 1024);
+
+        course.RemoveCoverImage();
+
+        Assert.Null(course.CoverImageFileName);
+        Assert.Null(course.CoverImageStorageKey);
+        Assert.Null(course.CoverImageSizeBytes);
+    }
 }

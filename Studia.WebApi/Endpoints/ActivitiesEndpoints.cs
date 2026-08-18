@@ -47,6 +47,17 @@ public static class ActivitiesEndpoints
             .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"))
             .DisableAntiforgery();
 
+        // Detalle de una actividad por id -- la página de actividad (antes modal) la carga
+        // directo desde la URL, sin pasar por el listado de la sección. Igual que la
+        // descarga de material: cualquier usuario logueado, sin filtrar por ficha acá
+        // (ese filtrado ya pasó al listar la sección/actividad).
+        group.MapGet("/{activityId:guid}", (Guid activityId, IGetActivityByIdUseCase useCase) =>
+            {
+                var result = useCase.Execute(new GetActivityByIdQuery(activityId));
+                return result is null ? Results.NotFound() : Results.Ok(result);
+            })
+            .RequireAuthorization();
+
         // Vista de calificación del profesor -- un estudiante no tiene por qué ver las
         // entregas de sus compañeros, así que esta sí queda restringida por rol.
         group.MapGet("/{activityId:guid}/submissions", (Guid activityId, IGetSubmissionsByActivityUseCase useCase) =>

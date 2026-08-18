@@ -17,5 +17,10 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
         builder.Property(c => c.InvitationCode).HasMaxLength(16).IsRequired();
         builder.Property(c => c.ProfesorId).IsRequired();
         builder.HasIndex(c => c.ProfesorId);
+
+        builder.Property(c => c.Color).HasMaxLength(7);
+        builder.Property(c => c.CoverImageFileName).HasMaxLength(260);
+        builder.Property(c => c.CoverImageStorageKey).HasMaxLength(300);
+        builder.Property(c => c.CoverImageSizeBytes);
     }
 }

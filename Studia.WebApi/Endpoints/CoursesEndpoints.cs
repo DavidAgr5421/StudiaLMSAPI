@@ -22,9 +22,10 @@ public static class CoursesEndpoints
             })
             .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
 
-        // Pública a propósito (RF12): un visitante sin sesión puede buscar cursos.
-        group.MapGet("/search", (string q, ISearchCoursesUseCase useCase) =>
-            Results.Ok(useCase.Execute(new SearchCoursesQuery(q))));
+        // Pública a propósito (RF12): un visitante sin sesión puede buscar cursos. "q" es
+        // opcional -- sin término, el botón "Cursos" del front lista todo lo disponible.
+        group.MapGet("/search", (string? q, ISearchCoursesUseCase useCase) =>
+            Results.Ok(useCase.Execute(new SearchCoursesQuery(q ?? ""))));
 
         // "Mis cursos": los que creó el profesor/admin autenticado.
         group.MapGet("/mine", (HttpContext httpContext, IGetCoursesByProfesorUseCase useCase) =>
@@ -72,9 +73,55 @@ public static class CoursesEndpoints
                 return Results.NoContent();
             })
             .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
+
+        // Personalización visual del curso: color en hex (o null para volver al default).
+        group.MapPatch("/{courseId:guid}/color", (Guid courseId, UpdateColorBody body, IUpdateCourseColorUseCase useCase) =>
+                Results.Ok(useCase.Execute(new UpdateCourseColorCommand(courseId, body.Color))))
+            .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
+
+        // multipart/form-data con una sola key "file" (tipo File) -- reemplaza la imagen
+        // anterior si ya había una.
+        group.MapPost("/{courseId:guid}/cover-image", async (Guid courseId, HttpContext httpContext, ISetCourseCoverImageUseCase useCase) =>
+            {
+                var form = await httpContext.Request.ReadFormAsync();
+                var file = form.Files.GetFile("file");
+                if (file is null)
+                    return Results.BadRequest(new { message = "Falta el archivo de imagen ('file')." });
+
+                using var stream = new MemoryStream();
+                await file.CopyToAsync(stream);
+
+                var result = useCase.Execute(new SetCourseCoverImageCommand(courseId, file.FileName, stream.ToArray()));
+                return Results.Ok(result);
+            })
+            .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"))
+            .DisableAntiforgery();
+
+        group.MapDelete("/{courseId:guid}/cover-image", (Guid courseId, IRemoveCourseCoverImageUseCase useCase) =>
+                Results.Ok(useCase.Execute(new RemoveCourseCoverImageCommand(courseId))))
+            .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
+
+        // Pública a propósito, igual que el curso: la portada es parte del preview (RF12).
+        group.MapGet("/{courseId:guid}/cover-image", (Guid courseId, IGetCourseCoverImageUseCase useCase) =>
+        {
+            var result = useCase.Execute(new GetCourseCoverImageQuery(courseId));
+            return Results.File(result.Content, CoverImageContentType(result.FileName));
+        });
     }
+
+    private static string CoverImageContentType(string fileName) =>
+        Path.GetExtension(fileName).ToLowerInvariant() switch
+        {
+            ".png" => "image/png",
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".webp" => "image/webp",
+            ".gif" => "image/gif",
+            _ => "application/octet-stream",
+        };
 
     private record AddStudentsBody(IReadOnlyCollection<string> StudentIdentifiers);
 
     private record CreateCourseBody(string Name, EnrollmentMode EnrollmentMode);
+
+    private record UpdateColorBody(string? Color);
 }
