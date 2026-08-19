@@ -13,5 +13,7 @@ public class InMemoryNotificationRepository : INotificationRepository
     public Notification? GetById(Guid id) => _notifications.GetValueOrDefault(id);
 
     public IReadOnlyCollection<Notification> GetByRecipientUserId(Guid recipientUserId) =>
-        _notifications.Values.Where(n => n.RecipientUserId == recipientUserId).ToList();
+        _notifications.Values.Where(n => n.RecipientUserId == recipientUserId)
+            .OrderByDescending(n => n.CreatedAtUtc)
+            .ToList();
 }

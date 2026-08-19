@@ -19,5 +19,7 @@ public class EfNotificationRepository(StudiaDbContext dbContext) : INotification
     public Notification? GetById(Guid id) => dbContext.Notifications.FirstOrDefault(n => n.Id == id);
 
     public IReadOnlyCollection<Notification> GetByRecipientUserId(Guid recipientUserId) =>
-        dbContext.Notifications.Where(n => n.RecipientUserId == recipientUserId).ToList();
+        dbContext.Notifications.Where(n => n.RecipientUserId == recipientUserId)
+            .OrderByDescending(n => n.CreatedAtUtc)
+            .ToList();
 }

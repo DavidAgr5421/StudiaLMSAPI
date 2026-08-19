@@ -1,5 +1,6 @@
 using Studia.Application.Enrollments;
 using Studia.Application.Tests.Courses;
+using Studia.Application.Tests.Notifications;
 using Studia.Application.Tests.Users;
 using Studia.Domain.Courses;
 using Studia.Domain.Enrollments;
@@ -14,7 +15,7 @@ public class RequestEnrollmentUseCaseTests
         var courses = new FakeCourseRepository();
         var users = new FakeUserRepository();
         var enrollments = new FakeEnrollmentRepository();
-        var useCase = new RequestEnrollmentUseCase(enrollments, courses, users);
+        var useCase = new RequestEnrollmentUseCase(enrollments, courses, users, new FakeNotificationRepository(), new FakeEmailSender());
 
         return (courses, users, enrollments, useCase);
     }

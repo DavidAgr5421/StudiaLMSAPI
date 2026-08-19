@@ -9,6 +9,7 @@ using Studia.Application.Auth;
 using Studia.Infrastructure.Auth;
 using Studia.Infrastructure.Persistence.EfCore;
 using Studia.WebApi;
+using Studia.WebApi.BackgroundServices;
 using Studia.WebApi.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -126,6 +127,7 @@ builder.Services
 
 builder.Services.AddAuthorization();
 builder.Services.AddOpenApi();
+builder.Services.AddHostedService<DueDateReminderBackgroundService>();
 
 var app = builder.Build();
 

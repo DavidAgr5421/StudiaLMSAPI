@@ -42,6 +42,11 @@ namespace Studia.Infrastructure.Persistence.EfCore.Migrations
                     b.Property<Guid>("SectionId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -236,6 +241,11 @@ namespace Studia.Infrastructure.Persistence.EfCore.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -323,6 +333,27 @@ namespace Studia.Infrastructure.Persistence.EfCore.Migrations
                         .IsUnique();
 
                     b.ToTable("users", (string)null);
+                });
+
+            modelBuilder.Entity("Studia.Infrastructure.Storage.StoredFile", b =>
+                {
+                    b.Property<string>("StorageKey")
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)");
+
+                    b.Property<byte[]>("CompressedContent")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("OriginalSizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("StorageKey");
+
+                    b.ToTable("stored_files", (string)null);
                 });
 
             modelBuilder.Entity("Studia.Domain.Activities.Activity", b =>

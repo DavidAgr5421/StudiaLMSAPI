@@ -1,6 +1,8 @@
 using Studia.Application.Sections;
 using Studia.Application.Tests.Cohorts;
+using Studia.Application.Tests.Courses;
 using Studia.Domain.Cohorts;
+using Studia.Domain.Courses;
 using Studia.Domain.Sections;
 using Studia.Domain.Users;
 
@@ -8,8 +10,9 @@ namespace Studia.Application.Tests.Sections;
 
 public class GetSectionsByCourseUseCaseTests
 {
-    private static GetSectionsByCourseUseCase CreateSut(FakeSectionRepository sections, FakeCohortRepository? cohorts = null) =>
-        new(sections, cohorts ?? new FakeCohortRepository());
+    private static GetSectionsByCourseUseCase CreateSut(
+        FakeSectionRepository sections, FakeCohortRepository? cohorts = null, FakeCourseRepository? courses = null) =>
+        new(sections, cohorts ?? new FakeCohortRepository(), courses ?? new FakeCourseRepository());
 
     [Fact]
     public void Execute_ReturnsOnlySectionsOfThatCourse()
@@ -67,5 +70,28 @@ public class GetSectionsByCourseUseCaseTests
         Assert.Contains(global.Id, resultIds);
         Assert.Contains(forMyCohort.Id, resultIds);
         Assert.DoesNotContain(forOtherCohort.Id, resultIds);
+    }
+
+    [Fact]
+    public void Execute_HiddenSection_IsInvisibleToOtherProfesor_ButVisibleToOwner()
+    {
+        var profesorId = Guid.NewGuid();
+        var courses = new FakeCourseRepository();
+        var course = Course.Create("Curso", EnrollmentMode.Abierta, profesorId);
+        courses.Save(course);
+
+        var sections = new FakeSectionRepository();
+        var visible = Section.Create(course.Id, "Semana 1", "");
+        var hidden = Section.Create(course.Id, "Borrador", "", status: SectionStatus.Oculto);
+        sections.Save(visible);
+        sections.Save(hidden);
+
+        var useCase = CreateSut(sections, courses: courses);
+
+        var asOtherProfesor = useCase.Execute(new GetSectionsByCourseQuery(course.Id, Guid.NewGuid(), Role.Profesor));
+        var asOwner = useCase.Execute(new GetSectionsByCourseQuery(course.Id, profesorId, Role.Profesor));
+
+        Assert.DoesNotContain(asOtherProfesor, r => r.Id == hidden.Id);
+        Assert.Contains(asOwner, r => r.Id == hidden.Id);
     }
 }

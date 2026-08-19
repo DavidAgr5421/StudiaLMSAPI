@@ -2,6 +2,7 @@ using Studia.Application.Activities;
 using Studia.Application.Enrollments;
 using Studia.Application.Sections;
 using Studia.Application.Users;
+using Studia.Domain.Activities;
 using Studia.Domain.Enrollments;
 using Studia.Domain.Notifications;
 
@@ -19,6 +20,10 @@ public class NotifyNewActivityUseCase(
     {
         var activity = activityRepository.GetById(command.ActivityId)
             ?? throw new InvalidOperationException($"No existe una actividad con id '{command.ActivityId}'.");
+
+        // Oculto: el profesor todavía está preparando el contenido, nadie se entera.
+        if (activity.Status == ActivityStatus.Oculto)
+            return [];
 
         var section = sectionRepository.GetById(activity.SectionId)
             ?? throw new InvalidOperationException($"No existe una sección con id '{activity.SectionId}'.");

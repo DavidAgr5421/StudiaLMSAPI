@@ -21,5 +21,8 @@ public class EfActivityRepository(StudiaDbContext dbContext) : IActivityReposito
     public IReadOnlyCollection<Activity> GetBySectionId(Guid sectionId) =>
         dbContext.Activities.Where(a => a.SectionId == sectionId).ToList();
 
+    public IReadOnlyCollection<Activity> GetWithDueDateBetween(DateTime fromUtc, DateTime toUtc) =>
+        dbContext.Activities.Where(a => a.DueDateUtc >= fromUtc && a.DueDateUtc <= toUtc).ToList();
+
     public void DeleteBySectionId(Guid sectionId) => dbContext.Activities.Where(a => a.SectionId == sectionId).ExecuteDelete();
 }

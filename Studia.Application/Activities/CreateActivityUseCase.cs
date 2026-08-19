@@ -49,7 +49,8 @@ public class CreateActivityUseCase(
             command.Type,
             command.MaxFiles,
             cohortIds,
-            files);
+            files,
+            command.Status);
 
         activityRepository.Save(activity);
 

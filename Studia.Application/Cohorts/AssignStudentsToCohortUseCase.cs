@@ -1,5 +1,9 @@
+using Studia.Application.Courses;
+using Studia.Application.Notifications;
 using Studia.Application.Users;
 using Studia.Domain.Cohorts;
+using Studia.Domain.Courses;
+using Studia.Domain.Notifications;
 using Studia.Domain.Users;
 
 namespace Studia.Application.Cohorts;
@@ -7,8 +11,12 @@ namespace Studia.Application.Cohorts;
 // Versión en lote de AssignStudentToCohortUseCase: el profesor arma la lista buscando con
 // GET /api/users/search y la manda de una sola vez. Igual que AddStudentsToCourseUseCase,
 // si uno falla no tumba a los demás -- revisá "Outcomes" para ver cuál entró y cuál no.
-public class AssignStudentsToCohortUseCase(ICohortRepository cohortRepository, IUserRepository userRepository)
-    : IAssignStudentsToCohortUseCase
+public class AssignStudentsToCohortUseCase(
+    ICohortRepository cohortRepository,
+    ICourseRepository courseRepository,
+    IUserRepository userRepository,
+    INotificationRepository notificationRepository,
+    IEmailSender emailSender) : IAssignStudentsToCohortUseCase
 {
     public AssignStudentsToCohortResult Execute(AssignStudentsToCohortCommand command)
     {
@@ -20,16 +28,24 @@ public class AssignStudentsToCohortUseCase(ICohortRepository cohortRepository, I
             .SelectMany(c => c.StudentIds)
             .ToHashSet();
 
+        var course = courseRepository.GetById(cohort.CourseId);
+
+        var assignedStudents = new List<User>();
         var outcomes = command.StudentIdentifiers
-            .Select(identifier => TryAssignStudent(cohort, identifier, studentIdsInOtherCohorts))
+            .Select(identifier => TryAssignStudent(cohort, identifier, studentIdsInOtherCohorts, assignedStudents))
             .ToList();
 
         cohortRepository.Save(cohort);
 
+        if (course is not null)
+            foreach (var student in assignedStudents)
+                NotifyStudent(course, cohort.Name, student);
+
         return new AssignStudentsToCohortResult(CohortResult.FromDomain(cohort), outcomes);
     }
 
-    private AssignStudentToCohortOutcome TryAssignStudent(Cohort cohort, string identifier, HashSet<Guid> studentIdsInOtherCohorts)
+    private AssignStudentToCohortOutcome TryAssignStudent(
+        Cohort cohort, string identifier, HashSet<Guid> studentIdsInOtherCohorts, List<User> assignedStudents)
     {
         var student = ResolveStudent(identifier);
 
@@ -51,6 +67,7 @@ public class AssignStudentsToCohortUseCase(ICohortRepository cohortRepository, I
             return new AssignStudentToCohortOutcome(identifier, false, ex.Message);
         }
 
+        assignedStudents.Add(student);
         return new AssignStudentToCohortOutcome(identifier, true, null);
     }
 
@@ -67,5 +84,20 @@ public class AssignStudentsToCohortUseCase(ICohortRepository cohortRepository, I
         {
             return null;
         }
+    }
+
+    private void NotifyStudent(Course course, string cohortName, User student)
+    {
+        var notification = Notification.Create(
+            student.Id,
+            NotificationType.MovidoAFicha,
+            "Te asignaron a una ficha",
+            $"Te asignaron a la ficha '{cohortName}' en el curso '{course.Name}'.",
+            course.Id);
+
+        emailSender.Send(student.Email.Value, notification.Title, notification.Message);
+        notification.MarkEmailSent();
+
+        notificationRepository.Save(notification);
     }
 }

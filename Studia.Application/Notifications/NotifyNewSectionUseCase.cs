@@ -3,6 +3,7 @@ using Studia.Application.Sections;
 using Studia.Application.Users;
 using Studia.Domain.Enrollments;
 using Studia.Domain.Notifications;
+using Studia.Domain.Sections;
 
 namespace Studia.Application.Notifications;
 
@@ -17,6 +18,10 @@ public class NotifyNewSectionUseCase(
     {
         var section = sectionRepository.GetById(command.SectionId)
             ?? throw new InvalidOperationException($"No existe una sección con id '{command.SectionId}'.");
+
+        // Oculto: el profesor todavía está preparando el contenido, nadie se entera.
+        if (section.Status == SectionStatus.Oculto)
+            return [];
 
         var enrolledStudentIds = enrollmentRepository.GetByCourseId(section.CourseId)
             .Where(e => e.Status == EnrollmentStatus.Aprobada)

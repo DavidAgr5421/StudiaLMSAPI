@@ -31,7 +31,7 @@ public class CreateSectionUseCase(
 
         var sanitizedDescription = htmlSanitizer.Sanitize(command.DescriptionHtml);
 
-        var section = Section.Create(course.Id, command.Title, sanitizedDescription, cohortIds);
+        var section = Section.Create(course.Id, command.Title, sanitizedDescription, cohortIds, command.Status);
 
         sectionRepository.Save(section);
 

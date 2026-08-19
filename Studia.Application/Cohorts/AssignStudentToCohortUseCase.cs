@@ -1,10 +1,17 @@
+using Studia.Application.Courses;
+using Studia.Application.Notifications;
 using Studia.Application.Users;
+using Studia.Domain.Notifications;
 using Studia.Domain.Users;
 
 namespace Studia.Application.Cohorts;
 
-public class AssignStudentToCohortUseCase(ICohortRepository cohortRepository, IUserRepository userRepository)
-    : IAssignStudentToCohortUseCase
+public class AssignStudentToCohortUseCase(
+    ICohortRepository cohortRepository,
+    ICourseRepository courseRepository,
+    IUserRepository userRepository,
+    INotificationRepository notificationRepository,
+    IEmailSender emailSender) : IAssignStudentToCohortUseCase
 {
     public CohortResult Execute(AssignStudentToCohortCommand command)
     {
@@ -27,6 +34,27 @@ public class AssignStudentToCohortUseCase(ICohortRepository cohortRepository, IU
 
         cohortRepository.Save(cohort);
 
+        NotifyStudent(cohort.CourseId, cohort.Name, student);
+
         return CohortResult.FromDomain(cohort);
+    }
+
+    private void NotifyStudent(Guid courseId, string cohortName, User student)
+    {
+        var course = courseRepository.GetById(courseId);
+        if (course is null)
+            return;
+
+        var notification = Notification.Create(
+            student.Id,
+            NotificationType.MovidoAFicha,
+            "Te asignaron a una ficha",
+            $"Te asignaron a la ficha '{cohortName}' en el curso '{course.Name}'.",
+            courseId);
+
+        emailSender.Send(student.Email.Value, notification.Title, notification.Message);
+        notification.MarkEmailSent();
+
+        notificationRepository.Save(notification);
     }
 }

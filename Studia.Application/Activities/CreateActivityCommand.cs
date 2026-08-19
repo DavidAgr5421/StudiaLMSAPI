@@ -12,4 +12,5 @@ public record CreateActivityCommand(
     ActivityType Type,
     int? MaxFiles,
     IReadOnlyCollection<Guid>? CohortIds = null,
-    IReadOnlyCollection<ActivityFileInput>? Files = null);
+    IReadOnlyCollection<ActivityFileInput>? Files = null,
+    ActivityStatus Status = ActivityStatus.Visible);

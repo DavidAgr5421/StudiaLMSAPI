@@ -1,7 +1,9 @@
 using Studia.Application.Courses;
+using Studia.Application.Notifications;
 using Studia.Application.Users;
 using Studia.Domain.Courses;
 using Studia.Domain.Enrollments;
+using Studia.Domain.Notifications;
 using Studia.Domain.Users;
 
 namespace Studia.Application.Enrollments;
@@ -9,7 +11,9 @@ namespace Studia.Application.Enrollments;
 public class RequestEnrollmentUseCase(
     IEnrollmentRepository enrollmentRepository,
     ICourseRepository courseRepository,
-    IUserRepository userRepository) : IRequestEnrollmentUseCase
+    IUserRepository userRepository,
+    INotificationRepository notificationRepository,
+    IEmailSender emailSender) : IRequestEnrollmentUseCase
 {
     public EnrollmentResult Execute(RequestEnrollmentCommand command)
     {
@@ -38,6 +42,27 @@ public class RequestEnrollmentUseCase(
 
         enrollmentRepository.Save(enrollment);
 
+        NotifyProfesor(course, student);
+
         return EnrollmentResult.FromDomain(enrollment);
+    }
+
+    private void NotifyProfesor(Course course, User student)
+    {
+        var profesor = userRepository.GetById(course.ProfesorId);
+        if (profesor is null)
+            return;
+
+        var notification = Notification.Create(
+            profesor.Id,
+            NotificationType.SolicitudInscripcion,
+            "Nueva solicitud de inscripción",
+            $"{student.Name} solicitó inscribirse en '{course.Name}'.",
+            course.Id);
+
+        emailSender.Send(profesor.Email.Value, notification.Title, notification.Message);
+        notification.MarkEmailSent();
+
+        notificationRepository.Save(notification);
     }
 }

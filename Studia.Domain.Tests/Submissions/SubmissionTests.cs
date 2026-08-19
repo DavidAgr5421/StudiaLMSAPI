@@ -93,19 +93,65 @@ public class SubmissionTests
     {
         var submission = Submission.SubmitText(Guid.NewGuid(), Guid.NewGuid(), "Respuesta", DateTime.UtcNow.AddDays(1));
 
-        submission.Grade(85, "Buen trabajo");
+        submission.Grade(4, "Buen trabajo");
 
-        Assert.Equal(85, submission.Score);
+        Assert.Equal(4, submission.Score);
         Assert.Equal("Buen trabajo", submission.Feedback);
     }
 
     [Theory]
     [InlineData(-1)]
-    [InlineData(101)]
+    [InlineData(6)]
     public void Grade_WithOutOfRangeScore_Throws(int invalidScore)
     {
         var submission = Submission.SubmitText(Guid.NewGuid(), Guid.NewGuid(), "Respuesta", DateTime.UtcNow.AddDays(1));
 
         Assert.Throws<ArgumentException>(() => submission.Grade(invalidScore, null));
+    }
+
+    [Fact]
+    public void EditText_BeforeDueDate_UpdatesContent()
+    {
+        var dueDate = DateTime.UtcNow.AddDays(1);
+        var submission = Submission.SubmitText(Guid.NewGuid(), Guid.NewGuid(), "Respuesta original", dueDate);
+
+        submission.EditText("Respuesta corregida", dueDate);
+
+        Assert.Equal("Respuesta corregida", submission.TextContent);
+    }
+
+    [Fact]
+    public void EditText_AfterDueDate_Throws()
+    {
+        var dueDate = DateTime.UtcNow.AddMinutes(-1);
+        var submission = Submission.SubmitText(Guid.NewGuid(), Guid.NewGuid(), "Respuesta original", DateTime.UtcNow.AddDays(1));
+
+        Assert.Throws<InvalidOperationException>(() => submission.EditText("Respuesta corregida", dueDate));
+    }
+
+    [Fact]
+    public void EditFiles_BeforeDueDate_ReplacesFiles()
+    {
+        var dueDate = DateTime.UtcNow.AddDays(1);
+        var originalFiles = new[] { SubmittedFile.Create("original.pdf", "key-1", 100) };
+        var submission = Submission.SubmitWithFiles(Guid.NewGuid(), Guid.NewGuid(), originalFiles, maxFiles: 2, dueDate);
+
+        var newFiles = new[] { SubmittedFile.Create("corregido.pdf", "key-2", 200) };
+        submission.EditFiles(newFiles, maxFiles: 2, dueDate, "Versión corregida");
+
+        Assert.Single(submission.Files);
+        Assert.Equal("key-2", submission.Files.First().StorageKey);
+        Assert.Equal("Versión corregida", submission.TextContent);
+    }
+
+    [Fact]
+    public void EditFiles_AfterDueDate_Throws()
+    {
+        var pastDueDate = DateTime.UtcNow.AddMinutes(-1);
+        var originalFiles = new[] { SubmittedFile.Create("original.pdf", "key-1", 100) };
+        var submission = Submission.SubmitWithFiles(Guid.NewGuid(), Guid.NewGuid(), originalFiles, maxFiles: 2, DateTime.UtcNow.AddDays(1));
+
+        var newFiles = new[] { SubmittedFile.Create("corregido.pdf", "key-2", 200) };
+        Assert.Throws<InvalidOperationException>(() => submission.EditFiles(newFiles, maxFiles: 2, pastDueDate));
     }
 }

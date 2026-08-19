@@ -1,4 +1,6 @@
 using Studia.Application.Cohorts;
+using Studia.Application.Tests.Courses;
+using Studia.Application.Tests.Notifications;
 using Studia.Application.Tests.Users;
 using Studia.Domain.Cohorts;
 using Studia.Domain.Users;
@@ -9,6 +11,9 @@ public class AssignStudentsToCohortUseCaseTests
 {
     private static User CreateStudent(string email) =>
         User.Register(Email.Create(email), "hashed-value", Role.Estudiante);
+
+    private static AssignStudentsToCohortUseCase CreateUseCase(FakeCohortRepository cohorts, FakeUserRepository users) =>
+        new(cohorts, new FakeCourseRepository(), users, new FakeNotificationRepository(), new FakeEmailSender());
 
     [Fact]
     public void Execute_WithMixOfEmailAndId_AssignsBoth()
@@ -23,7 +28,7 @@ public class AssignStudentsToCohortUseCaseTests
         userRepository.Save(byEmail);
         userRepository.Save(byId);
 
-        var useCase = new AssignStudentsToCohortUseCase(cohortRepository, userRepository);
+        var useCase = CreateUseCase(cohortRepository, userRepository);
 
         var result = useCase.Execute(new AssignStudentsToCohortCommand(cohort.Id, [byEmail.Email.Value, byId.Id.ToString()]));
 
@@ -43,7 +48,7 @@ public class AssignStudentsToCohortUseCaseTests
         var userRepository = new FakeUserRepository();
         userRepository.Save(student);
 
-        var useCase = new AssignStudentsToCohortUseCase(cohortRepository, userRepository);
+        var useCase = CreateUseCase(cohortRepository, userRepository);
 
         var result = useCase.Execute(new AssignStudentsToCohortCommand(cohort.Id, [student.Email.Value, "no-existe@sena.edu.co"]));
 
@@ -64,7 +69,7 @@ public class AssignStudentsToCohortUseCaseTests
         var userRepository = new FakeUserRepository();
         userRepository.Save(teacher);
 
-        var useCase = new AssignStudentsToCohortUseCase(cohortRepository, userRepository);
+        var useCase = CreateUseCase(cohortRepository, userRepository);
 
         var result = useCase.Execute(new AssignStudentsToCohortCommand(cohort.Id, [teacher.Email.Value]));
 
@@ -88,7 +93,7 @@ public class AssignStudentsToCohortUseCaseTests
         var userRepository = new FakeUserRepository();
         userRepository.Save(student);
 
-        var useCase = new AssignStudentsToCohortUseCase(cohortRepository, userRepository);
+        var useCase = CreateUseCase(cohortRepository, userRepository);
 
         var result = useCase.Execute(new AssignStudentsToCohortCommand(secondCohort.Id, [student.Email.Value]));
 
@@ -98,7 +103,7 @@ public class AssignStudentsToCohortUseCaseTests
     [Fact]
     public void Execute_WhenCohortDoesNotExist_Throws()
     {
-        var useCase = new AssignStudentsToCohortUseCase(new FakeCohortRepository(), new FakeUserRepository());
+        var useCase = CreateUseCase(new FakeCohortRepository(), new FakeUserRepository());
 
         Assert.Throws<InvalidOperationException>(() =>
             useCase.Execute(new AssignStudentsToCohortCommand(Guid.NewGuid(), ["a@b.com"])));

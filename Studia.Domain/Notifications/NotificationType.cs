@@ -4,5 +4,9 @@ public enum NotificationType
 {
     NuevaActividad,
     RecordatorioFechaLimite,
-    ContenidoAgregado
+    ContenidoAgregado,
+    Calificado,
+    SolicitudInscripcion,
+    EntregaActividad,
+    MovidoAFicha
 }

@@ -40,7 +40,7 @@ public static class ServiceRegistration
     {
         services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddSingleton<IHtmlSanitizer, AllowListHtmlSanitizer>();
-        services.AddSingleton<IFileStorage, LocalFileStorage>();
+        services.AddScoped<IFileStorage, DatabaseFileStorage>();
         services.AddSingleton<IEmailSender, ConsoleEmailSender>();
 
         return services;
@@ -96,6 +96,9 @@ public static class ServiceRegistration
         services.AddScoped<IGradeSubmissionUseCase, GradeSubmissionUseCase>();
         services.AddScoped<IGetSubmissionsByActivityUseCase, GetSubmissionsByActivityUseCase>();
         services.AddScoped<IGetSubmissionForActivityUseCase, GetSubmissionForActivityUseCase>();
+        services.AddScoped<IGetSubmissionFileUseCase, GetSubmissionFileUseCase>();
+        services.AddScoped<IEditTextSubmissionUseCase, EditTextSubmissionUseCase>();
+        services.AddScoped<IEditFilesSubmissionUseCase, EditFilesSubmissionUseCase>();
 
         services.AddScoped<INotifyNewActivityUseCase, NotifyNewActivityUseCase>();
         services.AddScoped<INotifyNewSectionUseCase, NotifyNewSectionUseCase>();

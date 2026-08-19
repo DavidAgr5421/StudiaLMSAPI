@@ -16,7 +16,6 @@ using Studia.Infrastructure.Content;
 using Studia.Infrastructure.Notifications;
 using Studia.Infrastructure.Persistence;
 using Studia.Infrastructure.Security;
-using Studia.Infrastructure.Storage;
 
 ICourseRepository courseRepository = new InMemoryCourseRepository();
 ICreateCourseUseCase createCourseUseCase = new CreateCourseUseCase(courseRepository);
@@ -25,15 +24,19 @@ IUserRepository userRepository = new InMemoryUserRepository();
 IPasswordHasher passwordHasher = new Pbkdf2PasswordHasher();
 IRegisterUserUseCase registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHasher);
 
+INotificationRepository notificationRepository = new InMemoryNotificationRepository();
+IEmailSender emailSender = new ConsoleEmailSender();
+
 ICohortRepository cohortRepository = new InMemoryCohortRepository();
 ICreateCohortUseCase createCohortUseCase = new CreateCohortUseCase(cohortRepository, courseRepository);
-IAssignStudentToCohortUseCase assignStudentToCohortUseCase = new AssignStudentToCohortUseCase(cohortRepository, userRepository);
+IAssignStudentToCohortUseCase assignStudentToCohortUseCase =
+    new AssignStudentToCohortUseCase(cohortRepository, courseRepository, userRepository, notificationRepository, emailSender);
 
 IEnrollmentRepository enrollmentRepository = new InMemoryEnrollmentRepository();
 IEnrollStudentInOpenCourseUseCase enrollStudentInOpenCourseUseCase =
     new EnrollStudentInOpenCourseUseCase(enrollmentRepository, courseRepository, userRepository);
 IRequestEnrollmentUseCase requestEnrollmentUseCase =
-    new RequestEnrollmentUseCase(enrollmentRepository, courseRepository, userRepository);
+    new RequestEnrollmentUseCase(enrollmentRepository, courseRepository, userRepository, notificationRepository, emailSender);
 IApproveEnrollmentUseCase approveEnrollmentUseCase = new ApproveEnrollmentUseCase(enrollmentRepository);
 IRejectEnrollmentUseCase rejectEnrollmentUseCase = new RejectEnrollmentUseCase(enrollmentRepository);
 IEnrollByInvitationUseCase enrollByInvitationUseCase =
@@ -43,16 +46,16 @@ ISectionRepository sectionRepository = new InMemorySectionRepository();
 IHtmlSanitizer htmlSanitizer = new AllowListHtmlSanitizer();
 ICreateSectionUseCase createSectionUseCase = new CreateSectionUseCase(sectionRepository, courseRepository, cohortRepository, htmlSanitizer);
 
-IFileStorage fileStorage = new LocalFileStorage();
+IFileStorage fileStorage = new InMemoryFileStorage();
 IActivityRepository activityRepository = new InMemoryActivityRepository();
 ICreateActivityUseCase createActivityUseCase = new CreateActivityUseCase(activityRepository, sectionRepository, cohortRepository, fileStorage, htmlSanitizer);
 
 ISubmissionRepository submissionRepository = new InMemorySubmissionRepository();
 ISubmitTextActivityUseCase submitTextActivityUseCase =
-    new SubmitTextActivityUseCase(submissionRepository, activityRepository, userRepository);
+    new SubmitTextActivityUseCase(submissionRepository, activityRepository, sectionRepository, courseRepository, userRepository, notificationRepository, emailSender);
 ISubmitFilesActivityUseCase submitFilesActivityUseCase =
-    new SubmitFilesActivityUseCase(submissionRepository, activityRepository, userRepository, fileStorage);
-IGradeSubmissionUseCase gradeSubmissionUseCase = new GradeSubmissionUseCase(submissionRepository);
+    new SubmitFilesActivityUseCase(submissionRepository, activityRepository, sectionRepository, courseRepository, userRepository, fileStorage, notificationRepository, emailSender);
+IGradeSubmissionUseCase gradeSubmissionUseCase = new GradeSubmissionUseCase(submissionRepository, activityRepository, userRepository, notificationRepository, emailSender);
 
 var jwtSigningSecret = Environment.GetEnvironmentVariable("STUDIA_JWT_SECRET");
 if (string.IsNullOrWhiteSpace(jwtSigningSecret))
@@ -68,8 +71,6 @@ ILoginUseCase loginUseCase = new LoginUseCase(userRepository, passwordHasher, jw
 ILogoutUseCase logoutUseCase = new LogoutUseCase(jwtTokenService, revokedTokenRepository);
 IValidateTokenUseCase validateTokenUseCase = new ValidateTokenUseCase(jwtTokenService, revokedTokenRepository);
 
-INotificationRepository notificationRepository = new InMemoryNotificationRepository();
-IEmailSender emailSender = new ConsoleEmailSender();
 INotifyNewActivityUseCase notifyNewActivityUseCase =
     new NotifyNewActivityUseCase(notificationRepository, activityRepository, sectionRepository, enrollmentRepository, userRepository, emailSender);
 INotifyNewSectionUseCase notifyNewSectionUseCase =
