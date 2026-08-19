@@ -7,7 +7,7 @@ public class Submission
     public Guid StudentId { get; }
     public SubmissionStatus Status { get; }
     public DateTime SubmittedAtUtc { get; }
-    public string? TextContent { get; }
+    public string? TextContent { get; private set; }
     public int? Score { get; private set; }
     public string? Feedback { get; private set; }
 
@@ -81,10 +81,39 @@ public class Submission
         return new Submission(Guid.NewGuid(), activityId, studentId, status, submittedAtUtc, trimmedDescription, files.ToList());
     }
 
+    // Edición de una entrega ya hecha -- solo antes de la fecha límite, igual que si nunca
+    // se hubiera entregado. Después de esa fecha la entrega queda fija.
+    public void EditText(string textContent, DateTime dueDateUtc)
+    {
+        if (DateTime.UtcNow > dueDateUtc)
+            throw new InvalidOperationException("Ya pasó la fecha límite; no se puede editar la entrega.");
+
+        if (string.IsNullOrWhiteSpace(textContent))
+            throw new ArgumentException("El contenido de la entrega no puede estar vacío.", nameof(textContent));
+
+        TextContent = textContent.Trim();
+    }
+
+    public void EditFiles(IReadOnlyCollection<SubmittedFile> files, int maxFiles, DateTime dueDateUtc, string? description = null)
+    {
+        if (DateTime.UtcNow > dueDateUtc)
+            throw new InvalidOperationException("Ya pasó la fecha límite; no se puede editar la entrega.");
+
+        if (files.Count == 0)
+            throw new ArgumentException("Debe adjuntar al menos un archivo.", nameof(files));
+
+        if (files.Count > maxFiles)
+            throw new ArgumentException($"La entrega supera el máximo de {maxFiles} archivo(s) permitidos.", nameof(files));
+
+        _files.Clear();
+        _files.AddRange(files);
+        TextContent = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+    }
+
     public void Grade(int score, string? feedback)
     {
-        if (score is < 0 or > 100)
-            throw new ArgumentException("La calificación debe estar entre 0 y 100.", nameof(score));
+        if (score is < 0 or > 5)
+            throw new ArgumentException("La calificación debe estar entre 0 y 5.", nameof(score));
 
         Score = score;
         Feedback = string.IsNullOrWhiteSpace(feedback) ? null : feedback.Trim();

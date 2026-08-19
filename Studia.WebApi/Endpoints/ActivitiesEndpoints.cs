@@ -31,6 +31,9 @@ public static class ActivitiesEndpoints
                     .Where(value => !string.IsNullOrWhiteSpace(value))
                     .Select(value => Guid.Parse(value!))
                     .ToList();
+                var status = Enum.TryParse<ActivityStatus>(form["status"].ToString(), ignoreCase: true, out var parsedStatus)
+                    ? parsedStatus
+                    : ActivityStatus.Visible;
 
                 var fileInputs = new List<ActivityFileInput>();
                 foreach (var file in form.Files)
@@ -40,7 +43,7 @@ public static class ActivitiesEndpoints
                     fileInputs.Add(new ActivityFileInput(file.FileName, stream.ToArray()));
                 }
 
-                var command = new CreateActivityCommand(sectionId, title, description, dueDateUtc, type, maxFiles, cohortIds, fileInputs);
+                var command = new CreateActivityCommand(sectionId, title, description, dueDateUtc, type, maxFiles, cohortIds, fileInputs, status);
                 var result = useCase.Execute(command);
                 return Results.Created($"/api/activities/{result.Id}", result);
             })
@@ -51,9 +54,9 @@ public static class ActivitiesEndpoints
         // directo desde la URL, sin pasar por el listado de la sección. Igual que la
         // descarga de material: cualquier usuario logueado, sin filtrar por ficha acá
         // (ese filtrado ya pasó al listar la sección/actividad).
-        group.MapGet("/{activityId:guid}", (Guid activityId, IGetActivityByIdUseCase useCase) =>
+        group.MapGet("/{activityId:guid}", (Guid activityId, HttpContext httpContext, IGetActivityByIdUseCase useCase) =>
             {
-                var result = useCase.Execute(new GetActivityByIdQuery(activityId));
+                var result = useCase.Execute(new GetActivityByIdQuery(activityId, httpContext.User.GetUserId(), httpContext.User.GetRole()));
                 return result is null ? Results.NotFound() : Results.Ok(result);
             })
             .RequireAuthorization();

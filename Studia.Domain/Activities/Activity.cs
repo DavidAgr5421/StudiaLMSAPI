@@ -10,6 +10,11 @@ public class Activity
     public ActivityType Type { get; }
     public int? MaxFiles { get; }
 
+    // Oculto: solo la ve el profesor dueño del curso (o un admin) -- no aparece para
+    // estudiantes ni dispara notificaciones. Pensado para preparar contenido antes de
+    // publicarlo.
+    public ActivityStatus Status { get; }
+
     // Vacío = global (visible para todo el curso). Si tiene elementos, solo los
     // estudiantes de esas fichas pueden ver la actividad.
     private readonly List<Guid> _cohortIds = [];
@@ -19,7 +24,7 @@ public class Activity
     private readonly List<ActivityFile> _files = [];
     public IReadOnlyCollection<ActivityFile> Files => _files.AsReadOnly();
 
-    private Activity(Guid id, Guid sectionId, string title, string description, DateTime dueDateUtc, ActivityType type, int? maxFiles)
+    private Activity(Guid id, Guid sectionId, string title, string description, DateTime dueDateUtc, ActivityType type, int? maxFiles, ActivityStatus status)
     {
         Id = id;
         SectionId = sectionId;
@@ -28,6 +33,7 @@ public class Activity
         DueDateUtc = dueDateUtc;
         Type = type;
         MaxFiles = maxFiles;
+        Status = status;
     }
 
     public static Activity Create(
@@ -38,7 +44,8 @@ public class Activity
         ActivityType type,
         int? maxFiles,
         IReadOnlyCollection<Guid>? cohortIds = null,
-        IReadOnlyCollection<ActivityFile>? files = null)
+        IReadOnlyCollection<ActivityFile>? files = null,
+        ActivityStatus status = ActivityStatus.Visible)
     {
         if (sectionId == Guid.Empty)
             throw new ArgumentException("La sección no es válida.", nameof(sectionId));
@@ -57,7 +64,7 @@ public class Activity
                 throw new ArgumentException("Una actividad de solo texto no debe tener un máximo de archivos.", nameof(maxFiles));
         }
 
-        var activity = new Activity(Guid.NewGuid(), sectionId, title.Trim(), description?.Trim() ?? string.Empty, dueDateUtc, type, maxFiles);
+        var activity = new Activity(Guid.NewGuid(), sectionId, title.Trim(), description?.Trim() ?? string.Empty, dueDateUtc, type, maxFiles, status);
         activity._cohortIds.AddRange(cohortIds ?? []);
         activity._files.AddRange(files ?? []);
 

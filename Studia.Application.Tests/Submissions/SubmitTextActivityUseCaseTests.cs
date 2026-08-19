@@ -1,7 +1,12 @@
 using Studia.Application.Submissions;
 using Studia.Application.Tests.Activities;
+using Studia.Application.Tests.Courses;
+using Studia.Application.Tests.Notifications;
+using Studia.Application.Tests.Sections;
 using Studia.Application.Tests.Users;
 using Studia.Domain.Activities;
+using Studia.Domain.Courses;
+using Studia.Domain.Sections;
 using Studia.Domain.Users;
 
 namespace Studia.Application.Tests.Submissions;
@@ -15,7 +20,8 @@ public class SubmitTextActivityUseCaseTests
         var activities = new FakeActivityRepository();
         var users = new FakeUserRepository();
         var submissions = new FakeSubmissionRepository();
-        var useCase = new SubmitTextActivityUseCase(submissions, activities, users);
+        var useCase = new SubmitTextActivityUseCase(
+            submissions, activities, new FakeSectionRepository(), new FakeCourseRepository(), users, new FakeNotificationRepository(), new FakeEmailSender());
 
         return (activities, users, submissions, useCase);
     }
@@ -76,6 +82,39 @@ public class SubmitTextActivityUseCaseTests
 
         Assert.Throws<InvalidOperationException>(() =>
             useCase.Execute(new SubmitTextCommand(activity.Id, student.Id, "Otra respuesta")));
+    }
+
+    [Fact]
+    public void Execute_NotifiesTheCourseProfesor()
+    {
+        var profesor = User.Register(Email.Create("profe@sena.edu.co"), "hashed-value", Role.Profesor, "Profe Ana");
+        var users = new FakeUserRepository();
+        users.Save(profesor);
+        var student = CreateStudentWithName();
+        users.Save(student);
+
+        var courses = new FakeCourseRepository();
+        var course = Course.Create("English B1", EnrollmentMode.Abierta, profesor.Id);
+        courses.Save(course);
+
+        var sections = new FakeSectionRepository();
+        var section = Section.Create(course.Id, "Semana 1", "");
+        sections.Save(section);
+
+        var activities = new FakeActivityRepository();
+        var activity = Activity.Create(section.Id, "Ensayo", "Escriba 200 palabras", FutureDueDate, ActivityType.SoloTexto, null);
+        activities.Save(activity);
+
+        var notifications = new FakeNotificationRepository();
+        var emailSender = new FakeEmailSender();
+        var useCase = new SubmitTextActivityUseCase(
+            new FakeSubmissionRepository(), activities, sections, courses, users, notifications, emailSender);
+
+        useCase.Execute(new SubmitTextCommand(activity.Id, student.Id, "Mi respuesta"));
+
+        var notification = Assert.Single(notifications.SavedNotifications);
+        Assert.Equal(profesor.Id, notification.RecipientUserId);
+        Assert.Single(emailSender.SentEmails);
     }
 
     [Fact]

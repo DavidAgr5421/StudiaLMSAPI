@@ -17,6 +17,7 @@ public class ActivityConfiguration : IEntityTypeConfiguration<Activity>
         builder.Property(a => a.DueDateUtc).IsRequired();
         builder.Property(a => a.Type).HasConversion<string>().HasMaxLength(30).IsRequired();
         builder.Property(a => a.MaxFiles);
+        builder.Property(a => a.Status).HasConversion<string>().HasMaxLength(30).IsRequired();
 
         builder.Ignore(a => a.CohortIds);
         builder.PrimitiveCollection<List<Guid>>("_cohortIds").HasColumnName("CohortIds");

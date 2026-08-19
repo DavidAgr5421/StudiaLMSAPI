@@ -1,4 +1,6 @@
 using Studia.Application.Cohorts;
+using Studia.Application.Tests.Courses;
+using Studia.Application.Tests.Notifications;
 using Studia.Application.Tests.Users;
 using Studia.Domain.Cohorts;
 using Studia.Domain.Users;
@@ -9,6 +11,9 @@ public class AssignStudentToCohortUseCaseTests
 {
     private static User CreateStudent(string email = "estudiante@sena.edu.co") =>
         User.Register(Email.Create(email), "hashed-value", Role.Estudiante);
+
+    private static AssignStudentToCohortUseCase CreateUseCase(FakeCohortRepository cohorts, FakeUserRepository users) =>
+        new(cohorts, new FakeCourseRepository(), users, new FakeNotificationRepository(), new FakeEmailSender());
 
     [Fact]
     public void Execute_WithValidStudent_AssignsToCohort()
@@ -21,7 +26,7 @@ public class AssignStudentToCohortUseCaseTests
         var userRepository = new FakeUserRepository();
         userRepository.Save(student);
 
-        var useCase = new AssignStudentToCohortUseCase(cohortRepository, userRepository);
+        var useCase = CreateUseCase(cohortRepository, userRepository);
 
         var result = useCase.Execute(new AssignStudentToCohortCommand(cohort.Id, student.Id));
 
@@ -31,7 +36,7 @@ public class AssignStudentToCohortUseCaseTests
     [Fact]
     public void Execute_WhenCohortDoesNotExist_Throws()
     {
-        var useCase = new AssignStudentToCohortUseCase(new FakeCohortRepository(), new FakeUserRepository());
+        var useCase = CreateUseCase(new FakeCohortRepository(), new FakeUserRepository());
 
         Assert.Throws<InvalidOperationException>(() =>
             useCase.Execute(new AssignStudentToCohortCommand(Guid.NewGuid(), Guid.NewGuid())));
@@ -44,7 +49,7 @@ public class AssignStudentToCohortUseCaseTests
         var cohortRepository = new FakeCohortRepository();
         cohortRepository.Save(cohort);
 
-        var useCase = new AssignStudentToCohortUseCase(cohortRepository, new FakeUserRepository());
+        var useCase = CreateUseCase(cohortRepository, new FakeUserRepository());
 
         Assert.Throws<InvalidOperationException>(() =>
             useCase.Execute(new AssignStudentToCohortCommand(cohort.Id, Guid.NewGuid())));
@@ -61,7 +66,7 @@ public class AssignStudentToCohortUseCaseTests
         var userRepository = new FakeUserRepository();
         userRepository.Save(teacher);
 
-        var useCase = new AssignStudentToCohortUseCase(cohortRepository, userRepository);
+        var useCase = CreateUseCase(cohortRepository, userRepository);
 
         Assert.Throws<InvalidOperationException>(() =>
             useCase.Execute(new AssignStudentToCohortCommand(cohort.Id, teacher.Id)));
@@ -84,7 +89,7 @@ public class AssignStudentToCohortUseCaseTests
         var userRepository = new FakeUserRepository();
         userRepository.Save(student);
 
-        var useCase = new AssignStudentToCohortUseCase(cohortRepository, userRepository);
+        var useCase = CreateUseCase(cohortRepository, userRepository);
 
         Assert.Throws<InvalidOperationException>(() =>
             useCase.Execute(new AssignStudentToCohortCommand(secondCohort.Id, student.Id)));

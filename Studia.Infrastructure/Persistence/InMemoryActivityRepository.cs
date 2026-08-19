@@ -15,6 +15,9 @@ public class InMemoryActivityRepository : IActivityRepository
     public IReadOnlyCollection<Activity> GetBySectionId(Guid sectionId) =>
         _activities.Values.Where(a => a.SectionId == sectionId).ToList();
 
+    public IReadOnlyCollection<Activity> GetWithDueDateBetween(DateTime fromUtc, DateTime toUtc) =>
+        _activities.Values.Where(a => a.DueDateUtc >= fromUtc && a.DueDateUtc <= toUtc).ToList();
+
     public void DeleteBySectionId(Guid sectionId)
     {
         foreach (var activity in GetBySectionId(sectionId))

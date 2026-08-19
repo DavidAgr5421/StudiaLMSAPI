@@ -8,6 +8,7 @@ using Studia.Domain.Notifications;
 using Studia.Domain.Sections;
 using Studia.Domain.Submissions;
 using Studia.Domain.Users;
+using Studia.Infrastructure.Storage;
 
 namespace Studia.Infrastructure.Persistence.EfCore;
 
@@ -22,6 +23,7 @@ public class StudiaDbContext(DbContextOptions<StudiaDbContext> options) : DbCont
     public DbSet<Submission> Submissions => Set<Submission>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<RevokedToken> RevokedTokens => Set<RevokedToken>();
+    public DbSet<StoredFile> StoredFiles => Set<StoredFile>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
