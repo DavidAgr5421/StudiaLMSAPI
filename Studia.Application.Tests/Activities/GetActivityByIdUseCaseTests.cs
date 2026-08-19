@@ -47,4 +47,31 @@ public class GetActivityByIdUseCaseTests
         Assert.NotNull(asOwner);
         Assert.NotNull(asAdmin);
     }
+
+    [Fact]
+    public void Execute_NotYetOpenActivity_ReturnsNullForStudent_ButResultForOwner()
+    {
+        var profesorId = Guid.NewGuid();
+        var courses = new FakeCourseRepository();
+        var course = Course.Create("Curso", EnrollmentMode.Abierta, profesorId);
+        courses.Save(course);
+
+        var sections = new FakeSectionRepository();
+        var section = Section.Create(course.Id, "Semana 1", "");
+        sections.Save(section);
+
+        var activities = new FakeActivityRepository();
+        var notYetOpen = Activity.Create(
+            section.Id, "Próxima entrega", "", DateTime.UtcNow.AddDays(2), ActivityType.SoloTexto, null,
+            openDateUtc: DateTime.UtcNow.AddDays(1));
+        activities.Save(notYetOpen);
+
+        var useCase = new GetActivityByIdUseCase(activities, sections, courses);
+
+        var asStudent = useCase.Execute(new GetActivityByIdQuery(notYetOpen.Id, Guid.NewGuid(), Role.Estudiante));
+        var asOwner = useCase.Execute(new GetActivityByIdQuery(notYetOpen.Id, profesorId, Role.Profesor));
+
+        Assert.Null(asStudent);
+        Assert.NotNull(asOwner);
+    }
 }

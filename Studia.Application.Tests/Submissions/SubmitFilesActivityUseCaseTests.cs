@@ -1,5 +1,6 @@
 using Studia.Application.Submissions;
 using Studia.Application.Tests.Activities;
+using Studia.Application.Tests.Cohorts;
 using Studia.Application.Tests.Courses;
 using Studia.Application.Tests.Notifications;
 using Studia.Application.Tests.Sections;
@@ -20,7 +21,7 @@ public class SubmitFilesActivityUseCaseTests
         var submissions = new FakeSubmissionRepository();
         var storage = new FakeFileStorage();
         var useCase = new SubmitFilesActivityUseCase(
-            submissions, activities, new FakeSectionRepository(), new FakeCourseRepository(), users, storage, new FakeNotificationRepository(), new FakeEmailSender());
+            submissions, activities, new FakeSectionRepository(), new FakeCourseRepository(), new FakeCohortRepository(), users, storage, new FakeNotificationRepository(), new FakeEmailSender());
 
         return (activities, users, submissions, storage, useCase);
     }

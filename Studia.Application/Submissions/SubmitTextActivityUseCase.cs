@@ -1,4 +1,5 @@
 using Studia.Application.Activities;
+using Studia.Application.Cohorts;
 using Studia.Application.Courses;
 using Studia.Application.Notifications;
 using Studia.Application.Sections;
@@ -15,6 +16,7 @@ public class SubmitTextActivityUseCase(
     IActivityRepository activityRepository,
     ISectionRepository sectionRepository,
     ICourseRepository courseRepository,
+    ICohortRepository cohortRepository,
     IUserRepository userRepository,
     INotificationRepository notificationRepository,
     IEmailSender emailSender) : ISubmitTextActivityUseCase
@@ -27,6 +29,9 @@ public class SubmitTextActivityUseCase(
         if (activity.Type != ActivityType.SoloTexto)
             throw new InvalidOperationException("Esta actividad requiere archivos adjuntos, no texto.");
 
+        if (!activity.AcceptsSubmissionsAt(DateTime.UtcNow))
+            throw new InvalidOperationException("Esta actividad ya no acepta entregas.");
+
         var student = userRepository.GetById(command.StudentId)
             ?? throw new InvalidOperationException($"No existe un usuario con id '{command.StudentId}'.");
 
@@ -36,19 +41,32 @@ public class SubmitTextActivityUseCase(
         if (string.IsNullOrWhiteSpace(student.Name))
             throw new InvalidOperationException("Debe completar su nombre antes de poder entregar una actividad.");
 
-        var alreadySubmitted = submissionRepository.GetByActivityId(activity.Id)
-            .Any(s => s.StudentId == student.Id);
+        Guid? groupId = null;
+        if (activity.Kind == ActivityKind.Grupal)
+        {
+            var section = sectionRepository.GetById(activity.SectionId)
+                ?? throw new InvalidOperationException($"No existe una sección con id '{activity.SectionId}'.");
+            groupId = SubmissionGrouping.ResolveGroupId(activity, section.CourseId, student.Id, cohortRepository);
+        }
+
+        var existingSubmissions = submissionRepository.GetByActivityId(activity.Id);
+        var alreadySubmitted = groupId is not null
+            ? existingSubmissions.Any(s => s.GroupId == groupId)
+            : existingSubmissions.Any(s => s.StudentId == student.Id);
 
         if (alreadySubmitted)
-            throw new InvalidOperationException($"El estudiante '{student.Email}' ya entregó esta actividad.");
+        {
+            throw new InvalidOperationException(
+                groupId is not null ? "Tu grupo ya entregó esta actividad." : $"El estudiante '{student.Email}' ya entregó esta actividad.");
+        }
 
-        var submission = Submission.SubmitText(activity.Id, student.Id, command.TextContent, activity.DueDateUtc);
+        var submission = Submission.SubmitText(activity.Id, student.Id, command.TextContent, activity.DueDateUtc, groupId);
 
         submissionRepository.Save(submission);
 
         NotifyProfesor(activity, student);
 
-        return SubmissionResult.FromDomain(submission);
+        return SubmissionGrouping.WithGroupName(SubmissionResult.FromDomain(submission), cohortRepository);
     }
 
     private void NotifyProfesor(Activity activity, User student)

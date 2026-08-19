@@ -50,7 +50,10 @@ public class CreateActivityUseCase(
             command.MaxFiles,
             cohortIds,
             files,
-            command.Status);
+            command.Status,
+            command.Kind,
+            command.OpenDateUtc,
+            command.AllowsLateSubmission);
 
         activityRepository.Save(activity);
 

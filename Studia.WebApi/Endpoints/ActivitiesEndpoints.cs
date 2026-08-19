@@ -34,6 +34,17 @@ public static class ActivitiesEndpoints
                 var status = Enum.TryParse<ActivityStatus>(form["status"].ToString(), ignoreCase: true, out var parsedStatus)
                     ? parsedStatus
                     : ActivityStatus.Visible;
+                var kind = Enum.TryParse<ActivityKind>(form["kind"].ToString(), ignoreCase: true, out var parsedKind)
+                    ? parsedKind
+                    : ActivityKind.Individual;
+                var openDateUtc = DateTime.TryParse(
+                    form["openDateUtc"].ToString(),
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal,
+                    out var parsedOpenDate)
+                    ? parsedOpenDate
+                    : (DateTime?)null;
+                var allowsLateSubmission = !bool.TryParse(form["allowsLateSubmission"].ToString(), out var parsedAllowsLate) || parsedAllowsLate;
 
                 var fileInputs = new List<ActivityFileInput>();
                 foreach (var file in form.Files)
@@ -43,7 +54,8 @@ public static class ActivitiesEndpoints
                     fileInputs.Add(new ActivityFileInput(file.FileName, stream.ToArray()));
                 }
 
-                var command = new CreateActivityCommand(sectionId, title, description, dueDateUtc, type, maxFiles, cohortIds, fileInputs, status);
+                var command = new CreateActivityCommand(
+                    sectionId, title, description, dueDateUtc, type, maxFiles, cohortIds, fileInputs, status, kind, openDateUtc, allowsLateSubmission);
                 var result = useCase.Execute(command);
                 return Results.Created($"/api/activities/{result.Id}", result);
             })
@@ -60,6 +72,16 @@ public static class ActivitiesEndpoints
                 return result is null ? Results.NotFound() : Results.Ok(result);
             })
             .RequireAuthorization();
+
+        // Cierre/reapertura manual -- corta la entrega/edición al toque, sin importar
+        // fecha límite ni AllowsLateSubmission.
+        group.MapPost("/{activityId:guid}/close", (Guid activityId, ICloseActivityUseCase useCase) =>
+                Results.Ok(useCase.Execute(new CloseActivityCommand(activityId))))
+            .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
+
+        group.MapPost("/{activityId:guid}/reopen", (Guid activityId, IReopenActivityUseCase useCase) =>
+                Results.Ok(useCase.Execute(new ReopenActivityCommand(activityId))))
+            .RequireAuthorization(policy => policy.RequireRole("Profesor", "Administrador"));
 
         // Vista de calificación del profesor -- un estudiante no tiene por qué ver las
         // entregas de sus compañeros, así que esta sí queda restringida por rol.

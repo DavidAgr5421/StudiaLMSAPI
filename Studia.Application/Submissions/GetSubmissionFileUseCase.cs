@@ -1,4 +1,5 @@
 using Studia.Application.Activities;
+using Studia.Application.Cohorts;
 using Studia.Application.Courses;
 using Studia.Application.Sections;
 
@@ -9,6 +10,7 @@ public class GetSubmissionFileUseCase(
     IActivityRepository activityRepository,
     ISectionRepository sectionRepository,
     ICourseRepository courseRepository,
+    ICohortRepository cohortRepository,
     IFileStorage fileStorage) : IGetSubmissionFileUseCase
 {
     public SubmissionFileContentResult Execute(GetSubmissionFileQuery query)
@@ -22,7 +24,7 @@ public class GetSubmissionFileUseCase(
         var file = submission.Files.FirstOrDefault(f => f.StorageKey == query.StorageKey)
             ?? throw new InvalidOperationException("El archivo no pertenece a esta entrega.");
 
-        var isOwner = submission.StudentId == query.RequestingUserId;
+        var isOwner = SubmissionOwnership.BelongsTo(submission, query.RequestingUserId, cohortRepository);
         if (!isOwner && !query.RequestingUserIsAdmin && !IsProfesorOfCourse(submission.ActivityId, query.RequestingUserId))
             throw new InvalidOperationException("No tiene permiso para descargar este archivo.");
 

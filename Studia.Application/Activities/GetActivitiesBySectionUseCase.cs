@@ -33,7 +33,10 @@ public class GetActivitiesBySectionUseCase(
             if (section.Status == SectionStatus.Oculto)
                 return [];
 
-            activities = activities.Where(activity => activity.Status != ActivityStatus.Oculto).ToList();
+            var nowUtc = DateTime.UtcNow;
+            activities = activities
+                .Where(activity => activity.Status != ActivityStatus.Oculto && activity.HasOpenedAt(nowUtc))
+                .ToList();
         }
 
         if (query.RequestingUserRole != Role.Estudiante)

@@ -104,6 +104,27 @@ public class CreateActivityUseCaseTests
     }
 
     [Fact]
+    public void Execute_PassesThroughKindOpenDateAndAllowsLateSubmission()
+    {
+        var sections = new FakeSectionRepository();
+        var section = Section.Create(Guid.NewGuid(), "Semana 1", "");
+        sections.Save(section);
+        var cohorts = new FakeCohortRepository();
+        var cohort = Cohort.Create(section.CourseId, "Grupo A");
+        cohorts.Save(cohort);
+        var useCase = CreateSut(new FakeActivityRepository(), sections, cohorts);
+        var openDate = DueDate.AddDays(-3);
+
+        var result = useCase.Execute(new CreateActivityCommand(
+            section.Id, "Trabajo en equipo", "Descripción", DueDate, ActivityType.SoloTexto, null,
+            CohortIds: [cohort.Id], Kind: ActivityKind.Grupal, OpenDateUtc: openDate, AllowsLateSubmission: false));
+
+        Assert.Equal(ActivityKind.Grupal, result.Kind);
+        Assert.Equal(openDate, result.OpenDateUtc);
+        Assert.False(result.AllowsLateSubmission);
+    }
+
+    [Fact]
     public void Execute_WithBaseFileOverSizeLimit_Throws()
     {
         var sections = new FakeSectionRepository();

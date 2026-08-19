@@ -13,8 +13,10 @@ public class SubmissionConfiguration : IEntityTypeConfiguration<Submission>
 
         builder.Property(s => s.ActivityId).IsRequired();
         builder.Property(s => s.StudentId).IsRequired();
+        builder.Property(s => s.GroupId);
         builder.Property(s => s.Status).HasConversion<string>().HasMaxLength(30).IsRequired();
         builder.Property(s => s.SubmittedAtUtc).IsRequired();
+        builder.Property(s => s.UpdatedAtUtc);
         builder.Property(s => s.TextContent).HasColumnType("text");
         builder.Property(s => s.Score);
         builder.Property(s => s.Feedback).HasColumnType("text");

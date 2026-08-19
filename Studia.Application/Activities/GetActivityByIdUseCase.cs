@@ -18,10 +18,10 @@ public class GetActivityByIdUseCase(
         var section = sectionRepository.GetById(activity.SectionId);
         var course = section is null ? null : courseRepository.GetById(section.CourseId);
 
-        // Oculto: se comporta como si no existiera para cualquiera que no sea el
-        // profesor dueño del curso (o un admin) -- 404, no 403, para no confirmar
-        // siquiera que la actividad existe.
-        if (activity.Status == ActivityStatus.Oculto)
+        // Oculto o todavía-no-abierta: se comportan como si no existiera para cualquiera
+        // que no sea el profesor dueño del curso (o un admin) -- 404, no 403, para no
+        // confirmar siquiera que la actividad existe.
+        if (activity.Status == ActivityStatus.Oculto || !activity.HasOpenedAt(DateTime.UtcNow))
         {
             var isOwner = query.RequestingUserRole == Role.Administrador ||
                 (course is not null && course.ProfesorId == query.RequestingUserId);
