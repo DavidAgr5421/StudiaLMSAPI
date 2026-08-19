@@ -37,6 +37,20 @@ public static class AuthEndpoints
             }
         });
 
+        // Responde 200 con el mismo mensaje sin importar si el email existe o no --
+        // si no, cualquiera podría usar este endpoint para enumerar cuentas registradas.
+        group.MapPost("/forgot-password", (ForgotPasswordBody body, IRequestPasswordResetUseCase useCase) =>
+        {
+            useCase.Execute(new RequestPasswordResetCommand(body.Email));
+            return Results.Ok(new { message = "Si el email está registrado, vas a recibir instrucciones para restablecer tu contraseña." });
+        });
+
+        group.MapPost("/reset-password", (ResetPasswordBody body, IResetPasswordUseCase useCase) =>
+        {
+            useCase.Execute(new ResetPasswordCommand(body.Token, body.NewPassword));
+            return Results.Ok(new { message = "Contraseña actualizada. Ya podés iniciar sesión." });
+        });
+
         group.MapPost("/logout", (HttpContext httpContext, ILogoutUseCase useCase) =>
             {
                 var token = ExtractBearerToken(httpContext);
@@ -64,4 +78,8 @@ public static class AuthEndpoints
     }
 
     private record PublicRegisterBody(string Email, string Password, string? Name);
+
+    private record ForgotPasswordBody(string Email);
+
+    private record ResetPasswordBody(string Token, string NewPassword);
 }

@@ -23,6 +23,7 @@ public class StudiaDbContext(DbContextOptions<StudiaDbContext> options) : DbCont
     public DbSet<Submission> Submissions => Set<Submission>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<RevokedToken> RevokedTokens => Set<RevokedToken>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<StoredFile> StoredFiles => Set<StoredFile>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

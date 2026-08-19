@@ -32,6 +32,7 @@ public static class ServiceRegistration
         services.AddScoped<ISubmissionRepository, EfSubmissionRepository>();
         services.AddScoped<INotificationRepository, EfNotificationRepository>();
         services.AddScoped<IRevokedTokenRepository, EfRevokedTokenRepository>();
+        services.AddScoped<IPasswordResetTokenRepository, EfPasswordResetTokenRepository>();
 
         return services;
     }
@@ -57,6 +58,8 @@ public static class ServiceRegistration
         services.AddScoped<IUpdateNameUseCase, UpdateNameUseCase>();
         services.AddScoped<IChangeEmailUseCase, ChangeEmailUseCase>();
         services.AddScoped<IChangePasswordUseCase, ChangePasswordUseCase>();
+        services.AddScoped<IRequestPasswordResetUseCase, RequestPasswordResetUseCase>();
+        services.AddScoped<IResetPasswordUseCase, ResetPasswordUseCase>();
         services.AddScoped<ISetIdentificationUseCase, SetIdentificationUseCase>();
 
         services.AddScoped<ICreateCourseUseCase, CreateCourseUseCase>();
