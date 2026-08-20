@@ -1,4 +1,5 @@
 using Studia.Application.Submissions;
+using Studia.Application.Tests.Cohorts;
 using Studia.Application.Tests.Users;
 using Studia.Domain.Submissions;
 using Studia.Domain.Users;
@@ -16,7 +17,7 @@ public class GetSubmissionsByActivityUseCaseTests
         var other = Submission.SubmitText(Guid.NewGuid(), Guid.NewGuid(), "Otra", DateTime.UtcNow.AddDays(1));
         repository.Save(matching);
         repository.Save(other);
-        var useCase = new GetSubmissionsByActivityUseCase(repository, new FakeUserRepository());
+        var useCase = new GetSubmissionsByActivityUseCase(repository, new FakeUserRepository(), new FakeCohortRepository());
 
         var results = useCase.Execute(new GetSubmissionsByActivityQuery(activityId));
 
@@ -36,7 +37,7 @@ public class GetSubmissionsByActivityUseCaseTests
         var users = new FakeUserRepository();
         users.Save(student);
 
-        var useCase = new GetSubmissionsByActivityUseCase(repository, users);
+        var useCase = new GetSubmissionsByActivityUseCase(repository, users, new FakeCohortRepository());
 
         var result = Assert.Single(useCase.Execute(new GetSubmissionsByActivityQuery(activityId)));
 
@@ -46,7 +47,7 @@ public class GetSubmissionsByActivityUseCaseTests
     [Fact]
     public void Execute_WithNoSubmissions_ReturnsEmpty()
     {
-        var useCase = new GetSubmissionsByActivityUseCase(new FakeSubmissionRepository(), new FakeUserRepository());
+        var useCase = new GetSubmissionsByActivityUseCase(new FakeSubmissionRepository(), new FakeUserRepository(), new FakeCohortRepository());
 
         var results = useCase.Execute(new GetSubmissionsByActivityQuery(Guid.NewGuid()));
 

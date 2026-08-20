@@ -129,4 +129,31 @@ public class GetActivitiesBySectionUseCaseTests
         Assert.DoesNotContain(asOtherProfesor, r => r.Id == hidden.Id);
         Assert.Contains(asOwner, r => r.Id == hidden.Id);
     }
+
+    [Fact]
+    public void Execute_NotYetOpenActivity_IsInvisibleToStudent_ButVisibleToOwner()
+    {
+        var profesorId = Guid.NewGuid();
+        var courses = new FakeCourseRepository();
+        var course = Course.Create("Curso", EnrollmentMode.Abierta, profesorId);
+        courses.Save(course);
+
+        var sections = new FakeSectionRepository();
+        var section = Section.Create(course.Id, "Semana 1", "");
+        sections.Save(section);
+
+        var activities = new FakeActivityRepository();
+        var notYetOpen = Activity.Create(
+            section.Id, "Próxima entrega", "", DateTime.UtcNow.AddDays(2), ActivityType.SoloTexto, null,
+            openDateUtc: DateTime.UtcNow.AddDays(1));
+        activities.Save(notYetOpen);
+
+        var useCase = new GetActivitiesBySectionUseCase(activities, sections, new FakeCohortRepository(), courses);
+
+        var asStudent = useCase.Execute(new GetActivitiesBySectionQuery(section.Id, Guid.NewGuid(), Role.Estudiante));
+        var asOwner = useCase.Execute(new GetActivitiesBySectionQuery(section.Id, profesorId, Role.Profesor));
+
+        Assert.Empty(asStudent);
+        Assert.Contains(asOwner, r => r.Id == notYetOpen.Id);
+    }
 }

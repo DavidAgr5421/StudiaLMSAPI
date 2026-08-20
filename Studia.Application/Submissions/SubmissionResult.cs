@@ -9,21 +9,26 @@ public record SubmissionResult(
     Guid Id,
     Guid ActivityId,
     Guid StudentId,
+    Guid? GroupId,
     SubmissionStatus Status,
     DateTime SubmittedAtUtc,
+    DateTime? UpdatedAtUtc,
     string? TextContent,
     IReadOnlyCollection<SubmittedFileResult> Files,
     int? Score,
     string? Feedback,
-    string? StudentName = null)
+    string? StudentName = null,
+    string? GroupName = null)
 {
     public static SubmissionResult FromDomain(Submission submission) =>
         new(
             submission.Id,
             submission.ActivityId,
             submission.StudentId,
+            submission.GroupId,
             submission.Status,
             submission.SubmittedAtUtc,
+            submission.UpdatedAtUtc,
             submission.TextContent,
             submission.Files.Select(SubmittedFileResult.FromDomain).ToList(),
             submission.Score,

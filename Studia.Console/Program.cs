@@ -52,9 +52,9 @@ ICreateActivityUseCase createActivityUseCase = new CreateActivityUseCase(activit
 
 ISubmissionRepository submissionRepository = new InMemorySubmissionRepository();
 ISubmitTextActivityUseCase submitTextActivityUseCase =
-    new SubmitTextActivityUseCase(submissionRepository, activityRepository, sectionRepository, courseRepository, userRepository, notificationRepository, emailSender);
+    new SubmitTextActivityUseCase(submissionRepository, activityRepository, sectionRepository, courseRepository, cohortRepository, userRepository, notificationRepository, emailSender);
 ISubmitFilesActivityUseCase submitFilesActivityUseCase =
-    new SubmitFilesActivityUseCase(submissionRepository, activityRepository, sectionRepository, courseRepository, userRepository, fileStorage, notificationRepository, emailSender);
+    new SubmitFilesActivityUseCase(submissionRepository, activityRepository, sectionRepository, courseRepository, cohortRepository, userRepository, fileStorage, notificationRepository, emailSender);
 IGradeSubmissionUseCase gradeSubmissionUseCase = new GradeSubmissionUseCase(submissionRepository, activityRepository, userRepository, notificationRepository, emailSender);
 
 var jwtSigningSecret = Environment.GetEnvironmentVariable("STUDIA_JWT_SECRET");

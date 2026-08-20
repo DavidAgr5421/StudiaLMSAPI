@@ -5,8 +5,14 @@ public class Submission
     public Guid Id { get; }
     public Guid ActivityId { get; }
     public Guid StudentId { get; }
+
+    // Solo para actividades Grupales: la ficha/grupo dueño de esta entrega. Cualquier
+    // miembro puede verla y editarla, no solo quien la creó (StudentId).
+    public Guid? GroupId { get; }
+
     public SubmissionStatus Status { get; }
     public DateTime SubmittedAtUtc { get; }
+    public DateTime? UpdatedAtUtc { get; private set; }
     public string? TextContent { get; private set; }
     public int? Score { get; private set; }
     public string? Feedback { get; private set; }
@@ -28,6 +34,7 @@ public class Submission
         Guid id,
         Guid activityId,
         Guid studentId,
+        Guid? groupId,
         SubmissionStatus status,
         DateTime submittedAtUtc,
         string? textContent,
@@ -36,13 +43,14 @@ public class Submission
         Id = id;
         ActivityId = activityId;
         StudentId = studentId;
+        GroupId = groupId;
         Status = status;
         SubmittedAtUtc = submittedAtUtc;
         TextContent = textContent;
         _files = files.ToList();
     }
 
-    public static Submission SubmitText(Guid activityId, Guid studentId, string textContent, DateTime dueDateUtc)
+    public static Submission SubmitText(Guid activityId, Guid studentId, string textContent, DateTime dueDateUtc, Guid? groupId = null)
     {
         ValidateIds(activityId, studentId);
 
@@ -52,7 +60,7 @@ public class Submission
         var submittedAtUtc = DateTime.UtcNow;
         var status = submittedAtUtc > dueDateUtc ? SubmissionStatus.Tardia : SubmissionStatus.ATiempo;
 
-        return new Submission(Guid.NewGuid(), activityId, studentId, status, submittedAtUtc, textContent.Trim(), []);
+        return new Submission(Guid.NewGuid(), activityId, studentId, groupId, status, submittedAtUtc, textContent.Trim(), []);
     }
 
     // description es opcional a propósito -- a diferencia de SubmitText (donde el texto ES la
@@ -64,7 +72,8 @@ public class Submission
         IReadOnlyCollection<SubmittedFile> files,
         int maxFiles,
         DateTime dueDateUtc,
-        string? description = null)
+        string? description = null,
+        Guid? groupId = null)
     {
         ValidateIds(activityId, studentId);
 
@@ -78,27 +87,23 @@ public class Submission
         var status = submittedAtUtc > dueDateUtc ? SubmissionStatus.Tardia : SubmissionStatus.ATiempo;
         var trimmedDescription = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
 
-        return new Submission(Guid.NewGuid(), activityId, studentId, status, submittedAtUtc, trimmedDescription, files.ToList());
+        return new Submission(Guid.NewGuid(), activityId, studentId, groupId, status, submittedAtUtc, trimmedDescription, files.ToList());
     }
 
-    // Edición de una entrega ya hecha -- solo antes de la fecha límite, igual que si nunca
-    // se hubiera entregado. Después de esa fecha la entrega queda fija.
-    public void EditText(string textContent, DateTime dueDateUtc)
+    // Si todavía se puede editar o no (fecha límite, cierre manual, etc.) lo decide el
+    // caso de uso consultando Activity.AcceptsSubmissionsAt -- acá el dominio solo hace
+    // el cambio en sí.
+    public void EditText(string textContent)
     {
-        if (DateTime.UtcNow > dueDateUtc)
-            throw new InvalidOperationException("Ya pasó la fecha límite; no se puede editar la entrega.");
-
         if (string.IsNullOrWhiteSpace(textContent))
             throw new ArgumentException("El contenido de la entrega no puede estar vacío.", nameof(textContent));
 
         TextContent = textContent.Trim();
+        UpdatedAtUtc = DateTime.UtcNow;
     }
 
-    public void EditFiles(IReadOnlyCollection<SubmittedFile> files, int maxFiles, DateTime dueDateUtc, string? description = null)
+    public void EditFiles(IReadOnlyCollection<SubmittedFile> files, int maxFiles, string? description = null)
     {
-        if (DateTime.UtcNow > dueDateUtc)
-            throw new InvalidOperationException("Ya pasó la fecha límite; no se puede editar la entrega.");
-
         if (files.Count == 0)
             throw new ArgumentException("Debe adjuntar al menos un archivo.", nameof(files));
 
@@ -108,6 +113,7 @@ public class Submission
         _files.Clear();
         _files.AddRange(files);
         TextContent = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+        UpdatedAtUtc = DateTime.UtcNow;
     }
 
     public void Grade(int score, string? feedback)

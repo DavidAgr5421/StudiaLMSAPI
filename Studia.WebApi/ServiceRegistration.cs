@@ -93,6 +93,8 @@ public static class ServiceRegistration
         services.AddScoped<IGetActivitiesBySectionUseCase, GetActivitiesBySectionUseCase>();
         services.AddScoped<IGetActivityByIdUseCase, GetActivityByIdUseCase>();
         services.AddScoped<IGetActivityFileUseCase, GetActivityFileUseCase>();
+        services.AddScoped<ICloseActivityUseCase, CloseActivityUseCase>();
+        services.AddScoped<IReopenActivityUseCase, ReopenActivityUseCase>();
 
         services.AddScoped<ISubmitTextActivityUseCase, SubmitTextActivityUseCase>();
         services.AddScoped<ISubmitFilesActivityUseCase, SubmitFilesActivityUseCase>();
